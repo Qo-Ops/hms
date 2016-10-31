@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <title>HMS - Login</title>
+  <meta name="description" content="HMS login page">
+  <meta name="author" content="edge peach mac">
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard.css') }}">
+
+  <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-8">
+      <div class="list-group">
+        {% for chain in chains %}
+        <a class="list-group-item">{{ chain.chain_name }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-md-4">
+      <button type="button" id="add-hotel" class="btn btn-success">Add new chain of hotels</button>
+      <button type="button" id="add-hotel" class="btn btn-success">New administrator</button>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+[Tt]humbs.db
+*.DS_Store
+__pycache__/
+.git/
+.vagrant/
+*.sublime-workspace
+*.sublime-project
+env/
+*~

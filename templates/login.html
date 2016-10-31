@@ -1,0 +1,51 @@
+<!doctype html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <title>HMS - Login</title>
+  <meta name="description" content="HMS login page">
+  <meta name="author" content="edge peach mac">
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='login.css') }}">
+
+  <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+  <div class="login-page">
+    <div class="form">
+      <form class="register-form" action="{{ url_for('register') }}" method=post>
+        {{ reg_form.csrf_token }}
+        {{ reg_form.login}}
+        {{ reg_form.password }}
+        {{ reg_form.email}}
+        <button>create</button>
+        <p class="message">Already registered? <a href="#">Sign In</a></p>
+      </form>
+      <form class="login-form" action="{{ url_for('login') }}" method="post">
+        {{ login_form.csrf_token }}
+        {{ login_form.login}}
+        {{ login_form.password }}
+        <button>login</button>
+        <p class="message">Not registered? <a href="#">Create an account</a></p>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <p>{{ message }}</p>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </form>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script type="text/javascript">
+    $('.message a').click(function(){
+      $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
+    });
+  </script>
+</body>
+</html>
