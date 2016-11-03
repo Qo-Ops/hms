@@ -9,24 +9,58 @@
 
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='header.css') }}">
 
   <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
   <![endif]-->
 </head>
 <body>
+{% include 'header.html' %}
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-8">
       <div class="list-group">
         {% for chain in chains %}
-        <a class="list-group-item">{{ chain.chain_name }}</a>
+        <a class="list-group-item" href="/locations">{{ chain.chain_name }}</a>
         {% endfor %}
       </div>
     </div>
     <div class="col-md-4">
-      <button type="button" id="add-hotel" class="btn btn-success">Add new chain of hotels</button>
-      <button type="button" id="add-hotel" class="btn btn-success">New administrator</button>
+      <div class="panel panel-success">
+        <div class="panel-heading">Add a new chain</div>
+        <div class="panel-body">
+          <form action="{{ url_for('add_chain') }}" method=post>
+            {{ new_chain.csrf_token }}
+            <div class="form-group">
+              {{ new_chain.chain_name }}
+            </div>
+            <button type="submit" id="add-chain" class="btn btn-success">Add</button>
+          </form>
+        </div>
+      </div>
+      <div class="panel panel-success">
+        <div class="panel-heading">Add a new administrator</div>
+        <div class="panel-body">
+          <form action="{{ url_for('add_admin') }}" method=post>
+          {{ new_admin.csrf_token }}
+          <div class="form-group">
+              {{ new_admin.login }}
+          </div>
+          <div class="form-group">
+              {{ new_admin.password }}
+          </div>
+          <div class="form-group">
+              {{ new_admin.email }}
+          </div>
+          <div class="form-group">
+              {{ new_admin.location }}
+          </div>
+          <button type="submit" id="add-admin" class="btn btn-success">Add</button>
+        </form>
+        </div>
+        
+      </div>
     </div>
   </div>
 </div>

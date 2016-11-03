@@ -6,7 +6,7 @@ from flask import Flask, request, redirect, url_for, render_template, flash, g
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
-from forms import LoginForm, RegistrationForm, NewChainForm
+from forms import LoginForm, RegistrationForm, NewChainForm, AdminForm
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -32,15 +32,30 @@ def get_db():
 from user import User
 
 
-@lm.login_required
+@login_required
 @app.route('/new-chain', methods=['POST'])
-def new_chain():
+def add_chain():
     form = NewChainForm()
     if form.validate_on_submit():
         conn = get_db()
         c = conn.cursor()
         params = (form.chain_name.data, current_user.id)
         c.execute("INSERT INTO hotel_chains VALUES(DEFAULT, %s, %s)", params)
+        conn.commit()
+    return redirect(url_for('owner_dashboard'))
+
+
+@login_required
+@app.route('/new-admin', methods=['POST'])
+def add_admin():
+    form = AdminForm()
+    if form.validate_on_submit():
+        conn = get_db()
+        c = conn.cursor()
+        params = (form.login.data, form.password.data, form.email.data)
+        c.execute("INSERT INTO users VALUES(DEFAULT, %s, %s, 1, %s)", params)
+        conn.commit()
+    return redirect(url_for('owner_dashboard'))
 
 
 @lm.user_loader
@@ -99,7 +114,8 @@ def register():
         conn = get_db()
         c = conn.cursor()
         c.execute("INSERT INTO users VALUES(DEFAULT, %s, %s, 2, %s);",
-                  (form.login.data, generate_password_hash(form.password.data), form.email.data))
+                  (form.login.data,
+                   generate_password_hash(form.password.data), form.email.data))
         conn.commit()
         return redirect(url_for('login'))
     return "whaat"
@@ -118,7 +134,9 @@ def admin():
 @app.route('/owner-dashboard', methods=['GET'])
 def owner_dashboard():
     chains = current_user.get_owned_chains()
-    return render_template('owner_dashboard.html', chains=chains)
+    return render_template('owner_dashboard.html', chains=chains,
+                           new_chain=NewChainForm(), new_admin=AdminForm())
+
 
 @login_required
 @app.route('/logout')
