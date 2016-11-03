@@ -24,7 +24,7 @@ create table locations(
     admin_id integer references users(id),
     hotel_id integer references hotel_chains(hotel_id),
     location varchar(100),
-    country char(3),
+    city varchar(60),
     PRIMARY KEY(hotel_id, location)
 );
 
