@@ -6,7 +6,7 @@ from flask import Flask, request, redirect, url_for, render_template, flash, g
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
-from forms import LoginForm, RegistrationForm, NewChainForm, AdminForm
+from forms import LoginForm, RegistrationForm, NewChainForm, AdminForm, SearchForm
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -30,6 +30,11 @@ def get_db():
 
 
 from user import User
+
+
+@app.route('/', methods=['GET'])
+def main():
+    return render_template('index.html', search=SearchForm())
 
 
 @login_required
@@ -107,6 +112,8 @@ def login():
     return render_template('login.html', login_form=data, reg_form=registration_form)
 
 
+@app.route('/')
+
 @app.route('/registration', methods=['POST'])
 def register():
     form = RegistrationForm()
@@ -128,6 +135,14 @@ def admin():
     if location is None:
         return redirect(url_for('logout'))
     return render_template('admin.html', location=location)
+
+
+@login_required
+@app.route('/chain', methods=['GET'])
+def locations_by_chain():
+    chain = request.args.get('name', None)
+    if current_user.owns(chain):
+        return render_template('chain.html')
 
 
 @login_required

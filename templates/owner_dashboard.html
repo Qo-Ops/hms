@@ -22,7 +22,7 @@
     <div class="col-md-8">
       <div class="list-group">
         {% for chain in chains %}
-        <a class="list-group-item" href="/locations">{{ chain.chain_name }}</a>
+        <a class="list-group-item" href="{{ url_for('locations_by_chain') }}?name={{ chain.chain_name|urlencode }}">{{ chain.chain_name }}</a>
         {% endfor %}
       </div>
     </div>
@@ -42,7 +42,7 @@
       <div class="panel panel-success">
         <div class="panel-heading">Add a new administrator</div>
         <div class="panel-body">
-          <form action="{{ url_for('add_admin') }}" method=post>
+        <form action="{{ url_for('add_admin') }}" method=post>
           {{ new_admin.csrf_token }}
           <div class="form-group">
               {{ new_admin.login }}
