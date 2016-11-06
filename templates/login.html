@@ -19,15 +19,15 @@
     <div class="form">
       <form class="register-form" action="{{ url_for('register') }}" method=post>
         {{ reg_form.csrf_token }}
-        {{ reg_form.login}}
+        {{ reg_form.login }}
         {{ reg_form.password }}
-        {{ reg_form.email}}
+        {{ reg_form.email }}
         <button>create</button>
         <p class="message">Already registered? <a href="#">Sign In</a></p>
       </form>
       <form class="login-form" action="{{ url_for('login') }}" method="post">
         {{ login_form.csrf_token }}
-        {{ login_form.login}}
+        {{ login_form.login }}
         {{ login_form.password }}
         <button>login</button>
         <p class="message">Not registered? <a href="#">Create an account</a></p>

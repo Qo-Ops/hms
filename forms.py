@@ -1,7 +1,9 @@
 from flask_wtf import FlaskForm as Form
-from wtforms import StringField, PasswordField, SelectField, IntegerField
+from wtforms import StringField, PasswordField, IntegerField
 from wtforms.validators import DataRequired
-from wtforms.fields.html5 import EmailField
+from wtforms.fields.html5 import EmailField, DateField
+
+from widgets import DatePickerWidget
 
 
 class LoginForm(Form):
@@ -36,3 +38,14 @@ class AdminForm(Form):
     location = StringField('location', validators=[DataRequired()],
                            render_kw={"placeholder": "administrated hotel",
                                       "class": "form-control"})
+
+
+class SearchForm(Form):
+    from_date = DateField('from_date', validators=[DataRequired()],
+                          render_kw={"placeholder": "From", "class": "form-control"})
+    to_date = DateField('to_date', validators=[DataRequired()],
+                        render_kw={"placeholder": "To", "class": "form-control"})
+    max_price = IntegerField('price',
+                             render_kw={"placeholder": "Maximum price", "class": "form-control"})
+    city = StringField('city', validators=[DataRequired()],
+                       render_kw={"placeholder": "City", "class": "form-control"})

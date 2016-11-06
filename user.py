@@ -59,7 +59,7 @@ class User(UserMixin):
             from app import app
             app.logger.error(str(e))
 
-    def owns(self, chain_id):
+    def owns(self, chain_name):
         if not self.is_owner:
             return False
         try:
