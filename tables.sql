@@ -16,7 +16,7 @@ create table visitors(
 
 create table hotel_chains(
     hotel_id serial PRIMARY KEY,
-    chain_name varchar(100),
+    chain_name varchar(100) UNIQUE,
     owner_id integer references users(id)
 );
 

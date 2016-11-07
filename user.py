@@ -17,7 +17,11 @@ class User(UserMixin):
             db = get_db()
             c = db.cursor()
             # TODO: query for getting location by location_id and admin_id
-            c.execute('')
+            query = ('select * '
+                     'from locations '
+                     'where id=%s '
+                     'and admin_id=%s;')
+            c.execute(query, location_id, self.id)
             result = c.fetchone()
             db.commit()
             if result is None:
@@ -35,7 +39,10 @@ class User(UserMixin):
             db = get_db()
             c = db.cursor()
             # TODO: get location of administrator by his id
-            c.execute('')
+            query = ('select id '
+                     'from locations '
+                     'where id=%s;')
+            c.execute(query, self.id)
             location = c.fetchone()
             db.commit()
             return location
@@ -66,7 +73,11 @@ class User(UserMixin):
             db = get_db()
             c = db.cursor()
             # TODO: query for getting location by owner_id and chain_name
-            c.execute('')
+            query = ('select hotel_chains '
+                     'from hotel_chains '
+                     'where hotel_chains.owner_id=%s '
+                     'and hotel_chains.chain_name=%s;')
+            c.execute(query, (self.id, chain_name))
             result = c.fetchone()
             db.commit()
             if result is None:

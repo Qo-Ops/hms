@@ -6,7 +6,7 @@ from flask import Flask, request, redirect, url_for, render_template, flash, g
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
-from forms import LoginForm, RegistrationForm, NewChainForm, AdminForm, SearchForm
+from forms import LoginForm, RegistrationForm, NewChainForm, AdminForm, SearchForm, LocationForm
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -45,7 +45,7 @@ def add_chain():
         conn = get_db()
         c = conn.cursor()
         params = (form.chain_name.data, current_user.id)
-        c.execute("INSERT INTO hotel_chains VALUES(DEFAULT, %s, %s)", params)
+        c.execute("INSERT INTO hotel_chains VALUES(DEFAULT, %s, %s);", params)
         conn.commit()
     return redirect(url_for('owner_dashboard'))
 
@@ -58,7 +58,20 @@ def add_admin():
         conn = get_db()
         c = conn.cursor()
         params = (form.login.data, form.password.data, form.email.data)
-        c.execute("INSERT INTO users VALUES(DEFAULT, %s, %s, 1, %s)", params)
+        c.execute("INSERT INTO users VALUES(DEFAULT, %s, %s, 1, %s);", params)
+        conn.commit()
+    return redirect(url_for('owner_dashboard'))
+
+
+@login_required
+@app.route('/new-location', methods=['POST'])
+def add_location():
+    form = LocationForm()
+    if form.validate_on_submit():
+        conn = get_db()
+        c = conn.cursor()
+        params = (get_id_by_chain_name(form.chain_name.data), form.name.data, form.city.data)
+        c.execute("INSERT INTO locations VALUES(NULL, %s, %s, %s);", params)
         conn.commit()
     return redirect(url_for('owner_dashboard'))
 
@@ -72,7 +85,6 @@ def load_user(userid):
         c.execute("SELECT id, access_level FROM users WHERE id=%s;", (userid,))
         user_data = c.fetchone()
         conn.commit()
-        app.logger.debug("user with id {} was loaded".format(user_data[0]))
     except Exception as e:
         app.logger.debug("load_user has loaded no user")
         app.logger.error(str(e))
@@ -90,7 +102,6 @@ def login():
         try:
             conn = get_db()
             c = conn.cursor()
-            print(data.login.data)
             c.execute("SELECT id, password, access_level FROM users WHERE login=%s;",
                       (data.login.data,))
             user_data = c.fetchone()
@@ -106,13 +117,13 @@ def login():
                 return redirect(url_for('owner_dashboard'))
             else:
                 return redirect(url_for('admin'))
-        else:
-            flash("Sorry you entered wrong login and password combination")
+        flash("Wrong login and password combination")
     registration_form = RegistrationForm()
     return render_template('login.html', login_form=data, reg_form=registration_form)
 
-
-@app.route('/')
+@app.route('/location')
+def get_location():
+    pass
 
 @app.route('/registration', methods=['POST'])
 def register():
@@ -126,6 +137,8 @@ def register():
         conn.commit()
         return redirect(url_for('login'))
     return "whaat"
+
+
 
 
 @login_required
@@ -142,7 +155,17 @@ def admin():
 def locations_by_chain():
     chain = request.args.get('name', None)
     if current_user.owns(chain):
-        return render_template('chain.html')
+        location_form = LocationForm()
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("SELECT hotel_id, location FROM locations WHERE hotel_id=%s", 
+                   (get_id_by_chain_name(chain),))
+        locs = c.fetchall()
+        location_form.chain_name.data = chain
+        return render_template('chain.html', locations=locs,
+                               new_admin=AdminForm(), new_location=location_form)
+
+
 
 
 @login_required
@@ -158,6 +181,22 @@ def owner_dashboard():
 def logout():
     logout_user()
     return redirect(url_for('login'))
+
+
+def get_id_by_chain_name(name):
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT hotel_id FROM hotel_chains WHERE chain_name=%s", (name,))
+    conn.commit()
+    return c.fetchone()['hotel_id']
+
+
+def get_chain_name_by_id(id):
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT chain_name FROM hotel_chains WHERE hotel_id=%s", (id,))
+    conn.commit()
+    return c.fetchone()['chain_name']
 
 
 @app.teardown_appcontext

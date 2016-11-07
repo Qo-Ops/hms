@@ -49,3 +49,12 @@ class SearchForm(Form):
                              render_kw={"placeholder": "Maximum price", "class": "form-control"})
     city = StringField('city', validators=[DataRequired()],
                        render_kw={"placeholder": "City", "class": "form-control"})
+
+
+class LocationForm(Form):
+    name = StringField('name', validators=[DataRequired()],
+                       render_kw={"placeholder": "name of new hotel", "class": "form-control"})
+    city = StringField('city', validators=[DataRequired()],
+                       render_kw={"placeholder": "city", "class": "form-control"})
+    chain_name = StringField('hotel_id', validators=[DataRequired()],
+                       render_kw={"placeholder": "city", "type": "hidden"})

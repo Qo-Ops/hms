@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <title>Hotel reservations</title>
+  <meta name="description" content="main page">
+  <meta name="author" content="edge peach mac">
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard.css') }}">
+  <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+<form action="{{ url_for('add_admin') }}" method=post>
+  {{ search.csrf_token }}
+  <div class="form-group">
+      {{ search.from_date }}
+  </div>
+  <div class="form-group">
+      {{ search.to_date }}
+  </div>
+  <div class="form-group">
+      {{ search.max_price }}
+  </div>
+  <div class="form-group">
+      {{ search.city }}
+  </div>
+  <button type="submit" id="add-admin" class="btn btn-success">Add</button>
+</form>
+<script type="text/javascript" src="{{ url_for('static', filename='bootstrap-datepicker.js') }}"></script>
