@@ -23,9 +23,9 @@ create table hotel_chains(
 create table locations(
     chain_name varchar(100) references hotel_chains(chain_name) ON DELETE CASCADE ON UPDATE CASCADE,
     city varchar(60),
-    location_name varchar(100),
+    location varchar(100),
     admin_id integer references users(id),
-    PRIMARY KEY(chain_name, location_name)
+    PRIMARY KEY(chain_name, location)
 );
 
 CREATE DOMAIN room_status AS varchar(8)
@@ -49,7 +49,7 @@ create table rooms(
     location varchar(100),
     status room_status,
     type_name varchar(100),
-    FOREIGN KEY (type_name, location, chain_name) REFERENCES room_type(name, location, chain_name) ON DELETE CASCADE,
+    FOREIGN KEY (type_name, location, chain_name) REFERENCES room_types(name, location, chain_name) ON DELETE CASCADE
 );
 
 create table accomodations(
@@ -68,7 +68,7 @@ create table payments(
     total integer CHECK(total > 0),
     room_id integer,
     visitor_id integer,
-    date_of_payment date DEFAULT GETDATE()
+    date_of_payment date DEFAULT now(),
     FOREIGN KEY (room_id) REFERENCES rooms(id),
     FOREIGN KEY (visitor_id) REFERENCES visitors(id)
 );

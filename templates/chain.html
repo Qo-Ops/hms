@@ -22,7 +22,7 @@
     <div class="col-md-8">
       <div class="list-group">
         {% for location in locations %}
-            <a class="list-group-item" href="{{ url_for('get_location') }}?hotel_id={{ location.hotel_id|urlencode }}&location={{ location.location|urlencode }}">{{ location.location }}</a>
+            <a class="list-group-item" href="{{ url_for('get_location') }}?chain_name={{ location.chain_name|urlencode }}&location={{ location.location|urlencode }}">{{ location.location }}</a>
         {% endfor %}
       </div>
     </div>

@@ -45,7 +45,7 @@ def add_chain():
         conn = get_db()
         c = conn.cursor()
         params = (form.chain_name.data, current_user.id)
-        c.execute("INSERT INTO hotel_chains VALUES(DEFAULT, %s, %s);", params)
+        c.execute("INSERT INTO hotel_chains VALUES(%s, %s);", params)
         conn.commit()
     return redirect(url_for('owner_dashboard'))
 
@@ -70,8 +70,8 @@ def add_location():
     if form.validate_on_submit():
         conn = get_db()
         c = conn.cursor()
-        params = (get_id_by_chain_name(form.chain_name.data), form.name.data, form.city.data)
-        c.execute("INSERT INTO locations VALUES(NULL, %s, %s, %s);", params)
+        params = (form.chain_name.data, form.city.data, form.location.data)
+        c.execute("INSERT INTO locations VALUES(%s, %s, %s, NULL);", params)
         conn.commit()
     return redirect(url_for('owner_dashboard'))
 
@@ -156,8 +156,8 @@ def locations_by_chain():
         location_form = LocationForm()
         conn = get_db()
         c = conn.cursor()
-        c.execute("SELECT hotel_id, location FROM locations WHERE hotel_id=%s",
-                   (get_id_by_chain_name(chain),))
+        c.execute("SELECT chain_name, location FROM locations WHERE chain_name=%s",
+                   (chain,))
         locs = c.fetchall()
         location_form.chain_name.data = chain
         return render_template('chain.html', locations=locs,
@@ -193,22 +193,6 @@ def owner_dashboard():
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-
-def get_id_by_chain_name(name):
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("SELECT hotel_id FROM hotel_chains WHERE chain_name=%s", (name,))
-    conn.commit()
-    return c.fetchone()['hotel_id']
-
-
-def get_chain_name_by_id(id):
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("SELECT chain_name FROM hotel_chains WHERE hotel_id=%s", (id,))
-    conn.commit()
-    return c.fetchone()['chain_name']
 
 
 @app.teardown_appcontext

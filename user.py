@@ -57,7 +57,7 @@ class User(UserMixin):
             db = get_db()
             c = db.cursor()
             # TODO: get location of administrator by his id
-            c.execute("SELECT hotel_id, chain_name FROM hotel_chains WHERE owner_id=%s",
+            c.execute("SELECT chain_name FROM hotel_chains WHERE owner_id=%s",
                       (self.id,))
             chains = c.fetchall()
             db.commit()
