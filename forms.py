@@ -3,8 +3,6 @@ from wtforms import StringField, PasswordField, IntegerField
 from wtforms.validators import DataRequired
 from wtforms.fields.html5 import EmailField, DateField
 
-from widgets import DatePickerWidget
-
 
 class LoginForm(Form):
     login = StringField('login', validators=[DataRequired()],
@@ -36,14 +34,14 @@ class AdminForm(Form):
     email = EmailField('email', validators=[DataRequired()],
                        render_kw={"placeholder": "email", "class": "form-control"})
     location = StringField('location', validators=[DataRequired()],
-                           render_kw={"placeholder": "administrated hotel",
+                           render_kw={"placeholder": "hotel",
                                       "class": "form-control"})
 
 
 class SearchForm(Form):
-    from_date = DateField('from_date', validators=[DataRequired()],
+    from_date = DateField('from_date', validators=[DataRequired()], format='%d/%m/%Y',
                           render_kw={"placeholder": "From", "class": "form-control"})
-    to_date = DateField('to_date', validators=[DataRequired()],
+    to_date = DateField('to_date', validators=[DataRequired()], format='%d/%m/%Y',
                         render_kw={"placeholder": "To", "class": "form-control"})
     max_price = IntegerField('price',
                              render_kw={"placeholder": "Maximum price", "class": "form-control"})
@@ -52,9 +50,9 @@ class SearchForm(Form):
 
 
 class LocationForm(Form):
-    name = StringField('name', validators=[DataRequired()],
+    location = StringField('location', validators=[DataRequired()],
                        render_kw={"placeholder": "name of new hotel", "class": "form-control"})
     city = StringField('city', validators=[DataRequired()],
                        render_kw={"placeholder": "city", "class": "form-control"})
-    chain_name = StringField('hotel_id', validators=[DataRequired()],
+    chain_name = StringField('chain_name', validators=[DataRequired()],
                        render_kw={"placeholder": "city", "type": "hidden"})

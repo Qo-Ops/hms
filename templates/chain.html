@@ -22,7 +22,7 @@
     <div class="col-md-8">
       <div class="list-group">
         {% for location in locations %}
-            <a class="list-group-item" href="{{ url_for('get_location') }}?hotel-id={{ location.hotel_id|urlencode }}&name={{ location.name|urlencode }}">{{ location.location }}</a>
+            <a class="list-group-item" href="{{ url_for('get_location') }}?hotel_id={{ location.hotel_id|urlencode }}&location={{ location.location|urlencode }}">{{ location.location }}</a>
         {% endfor %}
       </div>
     </div>
@@ -41,6 +41,9 @@
           <div class="form-group">
               {{ new_admin.email }}
           </div>
+          <div class="form-group">
+              {{ new_admin.location }}
+          </div>
             <button type="submit" id="add-admin" class="btn btn-success">Add</button>
           </form>
         </div>
@@ -51,7 +54,7 @@
           <form action="{{ url_for('add_location') }}" method=post>
             {{ new_location.csrf_token }}
             <div class="form-group">
-              {{ new_location.name }}
+              {{ new_location.location }}
           </div>
           <div class="form-group">
               {{ new_location.city }}
