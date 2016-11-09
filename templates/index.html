@@ -14,20 +14,27 @@
   <![endif]-->
 </head>
 <body>
-<form action="{{ url_for('add_admin') }}" method=post>
-  {{ search.csrf_token }}
-  <div class="form-group">
-      {{ search.from_date }}
+<div class="container-fluid">
+  <div class="col-md-4">
+    <div class="well">
+      <form action="{{ url_for('search') }}" method=GET>
+          {{ search.csrf_token }}
+        <div class="form-group">
+          {{ search.from_date }}
+        </div>
+        <div class="form-group">
+          {{ search.to_date }}
+        </div>
+        <div class="form-group">
+          {{ search.max_price }}
+        </div>
+        <div class="form-group">
+            {{ search.city }}
+        </div>
+        <button type="submit" id="add-admin" class="btn btn-primary btn-block">Search</button>
+      </form>
+    </div>
   </div>
-  <div class="form-group">
-      {{ search.to_date }}
-  </div>
-  <div class="form-group">
-      {{ search.max_price }}
-  </div>
-  <div class="form-group">
-      {{ search.city }}
-  </div>
-  <button type="submit" id="add-admin" class="btn btn-success">Add</button>
-</form>
-<script type="text/javascript" src="{{ url_for('static', filename='bootstrap-datepicker.js') }}"></script>
+</div>
+</body>
+</html>

@@ -139,8 +139,6 @@ def register():
     return "whaat"
 
 
-
-
 @login_required
 @app.route('/admin', methods=['GET'])
 def admin():
@@ -158,7 +156,7 @@ def locations_by_chain():
         location_form = LocationForm()
         conn = get_db()
         c = conn.cursor()
-        c.execute("SELECT hotel_id, location FROM locations WHERE hotel_id=%s", 
+        c.execute("SELECT hotel_id, location FROM locations WHERE hotel_id=%s",
                    (get_id_by_chain_name(chain),))
         locs = c.fetchall()
         location_form.chain_name.data = chain
@@ -166,6 +164,20 @@ def locations_by_chain():
                                new_admin=AdminForm(), new_location=location_form)
 
 
+@app.route('/search', methods=['GET'])
+def search():
+    search = SearchForm(request.args)
+    if search.validate():
+        conn = get_db()
+        c = conn.cursor()
+        params = (search.from_date.data, search.to_date.data, search.max_price.data, search.city.data)
+        # TODO: query to get hotels by dates, max_price and city
+        #c.execute("", params)
+        #results = c.fetchall()
+        results = []
+        return render_template('search.html', results=results,
+                               search=search)
+    return render_template('search.html')
 
 
 @login_required
