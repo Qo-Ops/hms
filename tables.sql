@@ -16,40 +16,40 @@ create table visitors(
 );
 
 create table hotel_chains(
-    chain_name varchar(100),
+    chain_name varchar(100) PRIMARY KEY,
     owner_id integer references users(id)
 );
 
 create table locations(
-    hotel_id integer references hotel_chains(hotel_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    chain_name varchar(100) references hotel_chains(chain_name) ON DELETE CASCADE ON UPDATE CASCADE,
     city varchar(60),
     location_name varchar(100),
     admin_id integer references users(id),
-    PRIMARY KEY(hotel_id, location_name)
+    PRIMARY KEY(chain_name, location_name)
 );
 
 CREATE DOMAIN room_status AS varchar(8)
     CHECK(VALUE IN ('occupied', 'clean', 'dirty'));
 
 create table room_types(
-    hotel_id integer,
+    chain_name varchar(100),
     location varchar(100),
     name varchar(100),
     price integer CHECK(price > 0) NOT NULL,
     capacity integer CHECK(capacity > 0) NOT NULL,
-    FOREIGN KEY (location, hotel_id) REFERENCES locations(location, hotel_id),
-    PRIMARY KEY (name, location, hotel_id)
+    FOREIGN KEY (location, chain_name) REFERENCES locations(location, chain_name),
+    PRIMARY KEY (name, location, chain_name)
 );
 
 create table rooms(
     id serial PRIMARY KEY,
     building integer,
     roomNo integer,
-    hotel_id integer,
+    chain_name varchar(100),
     location varchar(100),
     status room_status,
     type_name varchar(100),
-    FOREIGN KEY (type_name, location, hotel_id) REFERENCES room_type(name, location, hotel_id) ON DELETE CASCADE,
+    FOREIGN KEY (type_name, location, chain_name) REFERENCES room_type(name, location, chain_name) ON DELETE CASCADE,
 );
 
 create table accomodations(
