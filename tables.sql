@@ -32,24 +32,21 @@ CREATE DOMAIN room_status AS varchar(8)
     CHECK(VALUE IN ('occupied', 'clean', 'dirty'));
 
 create table room_types(
+    id SERIAL PRIMARY KEY,
     chain_name varchar(100),
     location varchar(100),
     name varchar(100),
     price integer CHECK(price > 0) NOT NULL,
     capacity integer CHECK(capacity > 0) NOT NULL,
-    FOREIGN KEY (location, chain_name) REFERENCES locations(location, chain_name),
-    PRIMARY KEY (name, location, chain_name)
+    FOREIGN KEY (location, chain_name) REFERENCES locations(location, chain_name)
 );
 
 create table rooms(
     id serial PRIMARY KEY,
+    room_type INTEGER REFERENCES room_types(id) ON DELETE CASCADE,
     building integer,
     roomNo integer,
-    chain_name varchar(100),
-    location varchar(100),
-    status room_status,
-    type_name varchar(100),
-    FOREIGN KEY (type_name, location, chain_name) REFERENCES room_types(name, location, chain_name) ON DELETE CASCADE
+    status room_status
 );
 
 create table reservations(
