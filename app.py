@@ -6,7 +6,8 @@ from flask import Flask, request, redirect, url_for, render_template, flash, g
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
-from forms import LoginForm, RegistrationForm, NewChainForm, AdminForm, SearchForm, LocationForm
+from forms import LoginForm, RegistrationForm, NewChainForm, \
+    AdminForm, SearchForm, LocationForm, ReservationForm
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -121,9 +122,36 @@ def login():
     registration_form = RegistrationForm()
     return render_template('login.html', login_form=data, reg_form=registration_form)
 
-@app.route('/location')
+
+@app.route('/location', methods=['GET'])
 def get_location():
     pass
+
+
+@app.route('/book', methods=['GET'])
+def create_reservation():
+    pass
+
+
+@app.route('/new-reservation', methods=['POST'])
+def add_reservation():
+    reservation = ReservationForm()
+    if reservation.validate_on_submit():
+        try:
+            db = get_db()
+            c = db.cursor()
+            c.execute("")
+        except Exception as e:
+            app.logger.error(e)
+
+
+def add_accomodation(cursor, params):
+    sql = ('insert into '
+           'accomodations '
+           'values(default, %s, %s, %s, %s) ')
+    # check_in, check_out, room_id, self.id
+    cursor.execute(sql, params)
+
 
 @app.route('/registration', methods=['POST'])
 def register():

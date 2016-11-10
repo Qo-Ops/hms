@@ -1,3 +1,4 @@
+from wtforms import validators
 from flask_wtf import FlaskForm as Form
 from wtforms import StringField, PasswordField, IntegerField
 from wtforms.validators import DataRequired
@@ -56,3 +57,17 @@ class LocationForm(Form):
                        render_kw={"placeholder": "city", "class": "form-control"})
     chain_name = StringField('chain_name', validators=[DataRequired()],
                        render_kw={"placeholder": "city", "type": "hidden"})
+
+
+class ReservationForm(Form):
+    first_name = StringField('first_name', validators=[DataRequired()],
+                             render_kw={"placeholder": "first name", "class": "form-control"})
+    last_name = StringField('last_name', validators=[DataRequired()],
+                             render_kw={"placeholder": "last name", "class": "form-control"})
+    ssn = StringField('ssn', validators=[DataRequired()],
+                             render_kw={"placeholder": "Social Security Number", "class": "form-control"})
+    email = EmailField('email', validators=[DataRequired()],
+                       render_kw={"placeholder": "E-mail", "class": "form-control"})
+    country = StringField('country', validators=[DataRequired(), validators.length(max=3)],
+                          render_kw={"placeholder": "Country code", "class": "form-control"})
+    room_id = HiddenField('room_id', validators=[DataRequired()])

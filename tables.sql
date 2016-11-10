@@ -12,7 +12,7 @@ create table visitors(
     last_name varchar(100) NOT NULL,
     ssn varchar(50) NOT NULL,
     country_code char(3) NOT NULL,
-    email varchar(124) NOT NULL
+    email varchar(124)
 );
 
 create table hotel_chains(
@@ -68,7 +68,6 @@ create table payments(
     total integer CHECK(total > 0),
     room_id integer,
     visitor_id integer,
-    date_of_payment date DEFAULT now(),
     FOREIGN KEY (room_id) REFERENCES rooms(id),
     FOREIGN KEY (visitor_id) REFERENCES visitors(id)
 );
