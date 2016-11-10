@@ -33,6 +33,24 @@ def get_db():
 from user import User
 
 
+@lm.user_loader
+def load_user(userid):
+    conn = get_db()
+    c = conn.cursor()
+    user_data = None
+    try:
+        c.execute("SELECT id, access_level FROM users WHERE id=%s;", (userid,))
+        user_data = c.fetchone()
+        conn.commit()
+    except Exception as e:
+        app.logger.debug("load_user has loaded no user")
+        app.logger.error(str(e))
+        raise e
+    if user_data is None:
+        return None
+    return User(*user_data)
+
+
 @app.route('/', methods=['GET'])
 def main():
     return render_template('index.html', search=SearchForm())
@@ -77,22 +95,39 @@ def add_location():
     return redirect(url_for('owner_dashboard'))
 
 
-@lm.user_loader
-def load_user(userid):
-    conn = get_db()
-    c = conn.cursor()
-    user_data = None
-    try:
-        c.execute("SELECT id, access_level FROM users WHERE id=%s;", (userid,))
-        user_data = c.fetchone()
-        conn.commit()
-    except Exception as e:
-        app.logger.debug("load_user has loaded no user")
-        app.logger.error(str(e))
-        raise e
-    if user_data is None:
-        return None
-    return User(*user_data)
+@app.route('/new-reservation', methods=['POST', 'GET'])
+def add_reservation():
+    if request.method == 'GET':
+        reservation = ReservationForm(request.args)
+        return render_template('booking_page.html', reservation=reservation)
+    reservation = ReservationForm()
+    if reservation.validate_on_submit():
+        try:
+            db = get_db()
+            c = db.cursor()
+            c.execute("")
+        except Exception as e:
+            app.logger.error(e)
+        return redirect('success.html')
+
+
+@app.route('/new-room-type', methods=['POST'])
+def add_room_type():
+    pass
+
+
+@login_required
+@app.route('/admin', methods=['GET'])
+def admin():
+    location = current_user.get_managed_location()
+    if location is None:
+        return redirect(url_for('logout'))
+    return render_template('admin.html', location=location)
+
+
+@app.route('/location', methods=['GET'])
+def get_location():
+    pass
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -123,57 +158,11 @@ def login():
     return render_template('login.html', login_form=data, reg_form=registration_form)
 
 
-@app.route('/location', methods=['GET'])
-def get_location():
-    pass
-
-
-@app.route('/book', methods=['GET'])
-def create_reservation():
-    pass
-
-
-@app.route('/new-reservation', methods=['POST'])
-def add_reservation():
-    reservation = ReservationForm()
-    if reservation.validate_on_submit():
-        try:
-            db = get_db()
-            c = db.cursor()
-            c.execute("")
-        except Exception as e:
-            app.logger.error(e)
-
-
-def add_accomodation(cursor, params):
-    sql = ('insert into '
-           'accomodations '
-           'values(default, %s, %s, %s, %s) ')
-    # check_in, check_out, room_id, self.id
-    cursor.execute(sql, params)
-
-
-@app.route('/registration', methods=['POST'])
-def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("INSERT INTO users VALUES(DEFAULT, %s, %s, 2, %s);",
-                  (form.login.data,
-                   generate_password_hash(form.password.data), form.email.data))
-        conn.commit()
-        return redirect(url_for('login'))
-    return "whaat"
-
-
 @login_required
-@app.route('/admin', methods=['GET'])
-def admin():
-    location = current_user.get_managed_location()
-    if location is None:
-        return redirect(url_for('logout'))
-    return render_template('admin.html', location=location)
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
 
 
 @login_required
@@ -192,6 +181,28 @@ def locations_by_chain():
                                new_admin=AdminForm(), new_location=location_form)
 
 
+@login_required
+@app.route('/owner-dashboard', methods=['GET'])
+def owner_dashboard():
+    chains = current_user.get_owned_chains()
+    return render_template('owner_dashboard.html', chains=chains,
+                           new_chain=NewChainForm(), new_admin=AdminForm())
+
+
+@app.route('/registration', methods=['POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("INSERT INTO users VALUES(DEFAULT, %s, %s, 2, %s);",
+                  (form.login.data,
+                   generate_password_hash(form.password.data), form.email.data))
+        conn.commit()
+        return redirect(url_for('login'))
+    return "whaat"
+
+
 @app.route('/search', methods=['GET'])
 def search():
     search = SearchForm(request.args)
@@ -206,21 +217,6 @@ def search():
         return render_template('search.html', results=results,
                                search=search)
     return render_template('search.html')
-
-
-@login_required
-@app.route('/owner-dashboard', methods=['GET'])
-def owner_dashboard():
-    chains = current_user.get_owned_chains()
-    return render_template('owner_dashboard.html', chains=chains,
-                           new_chain=NewChainForm(), new_admin=AdminForm())
-
-
-@login_required
-@app.route('/logout')
-def logout():
-    logout_user()
-    return redirect(url_for('login'))
 
 
 @app.teardown_appcontext

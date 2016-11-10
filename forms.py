@@ -1,6 +1,7 @@
 from wtforms import validators
 from flask_wtf import FlaskForm as Form
-from wtforms import StringField, PasswordField, IntegerField
+from wtforms import StringField, PasswordField, \
+    IntegerField, HiddenField, SelectField
 from wtforms.validators import DataRequired
 from wtforms.fields.html5 import EmailField, DateField
 
@@ -52,11 +53,11 @@ class SearchForm(Form):
 
 class LocationForm(Form):
     location = StringField('location', validators=[DataRequired()],
-                       render_kw={"placeholder": "name of new hotel", "class": "form-control"})
+                           render_kw={"placeholder": "name of new hotel", "class": "form-control"})
     city = StringField('city', validators=[DataRequired()],
                        render_kw={"placeholder": "city", "class": "form-control"})
-    chain_name = StringField('chain_name', validators=[DataRequired()],
-                       render_kw={"placeholder": "city", "type": "hidden"})
+    chain_name = HiddenField('chain_name', validators=[DataRequired()],
+                             render_kw={"placeholder": "city"})
 
 
 class ReservationForm(Form):
@@ -71,3 +72,23 @@ class ReservationForm(Form):
     country = StringField('country', validators=[DataRequired(), validators.length(max=3)],
                           render_kw={"placeholder": "Country code", "class": "form-control"})
     room_id = HiddenField('room_id', validators=[DataRequired()])
+    check_in = DateField('check_in', validators=[DataRequired()])
+    check_out = DateField('check_out', validators=[DataRequired()])
+
+
+class RoomTypeForm(Form):
+    chain_name = HiddenField('chain_name', validators=[DataRequired()])
+    location = HiddenField('location', validators=[DataRequired()])
+    name = StringField('name', validators=[DataRequired()],
+                       render_kw={"placeholder": "name", "class": "form-control"})
+    price = IntegerField('price', validators=[DataRequired()],
+                         render_kw={"placeholder": "price", "class": "form-control"})
+    capacity = IntegerField('capacity', validators=[DataRequired()],
+                            render_kw={"placeholder": "capacity", "class": "form-control"})
+
+
+class RoomForm(Form):
+    room_type = SelectField('id', validators=[DataRequired()],
+                            render_kw={"class": "form-control"})
+    roomNo = IntegerField('roomNo', validators=[DataRequired()],
+                          render_kw={"class": "form-control"})
