@@ -52,8 +52,9 @@ create table rooms(
     FOREIGN KEY (type_name, location, chain_name) REFERENCES room_type(name, location, chain_name) ON DELETE CASCADE,
 );
 
-create table accomodations(
+create table reservations(
     id serial PRIMARY KEY,
+    total integer CHECK(total > 0),
     check_in date NOT NULL,
     check_out date NOT NULL,
     room_id integer,
@@ -61,14 +62,4 @@ create table accomodations(
     FOREIGN KEY (room_id) REFERENCES rooms(id),
     FOREIGN KEY (visitor_id) REFERENCES visitors(id),
     CONSTRAINT positive_duration CHECK (check_out > check_in)
-);
-
-create table payments(
-    id serial PRIMARY KEY,
-    total integer CHECK(total > 0),
-    room_id integer,
-    visitor_id integer,
-    date_of_payment date DEFAULT GETDATE()
-    FOREIGN KEY (room_id) REFERENCES rooms(id),
-    FOREIGN KEY (visitor_id) REFERENCES visitors(id)
 );
