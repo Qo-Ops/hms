@@ -234,6 +234,13 @@ def register():
     return "whaat"
 
 
+@app.route('/check-in', methods=['POST'])
+def check_in():
+    form = CheckinForm()
+    
+    return redirect(url_for('admin'))
+
+
 @app.route('/upload-location-pic', methods=['POST'])
 def set_location_pic():
     form = UploadForm()

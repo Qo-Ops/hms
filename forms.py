@@ -95,6 +95,10 @@ class RoomForm(Form):
                           render_kw={"placeholder": "number", "class": "form-control"})
 
 
+class CheckinForm(Form):
+    pass
+
+
 class UploadForm(Form):
     image = FileField('image', validators=[
         FileRequired(),
