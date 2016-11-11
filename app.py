@@ -235,12 +235,14 @@ def register():
 
 
 @app.route('/check-in', methods=['POST'])
-def check_in():
+def check_in(room_id):
     form = CheckinForm()
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("SELECT id FROM rooms WHERE status='clean' OR status='dirty'")
-    
+    #try:
+    	conn = get_db()
+    	c = conn.cursor()
+    	c.execute("UPDATE rooms SET status='occupied' WHERE id=room_id")
+    	db.commit()
+
     return redirect(url_for('admin'))
 
 
