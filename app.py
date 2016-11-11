@@ -154,7 +154,7 @@ def get_location():
         upload_form = UploadForm(request.args)
         conn = get_db()
         c = conn.cursor(cursor_factory=NamedTupleCursor)
-        params = tuple(request.args.values())
+        params = (request.args.get('chain_name'), request.args.get('location'))
         c.execute("SELECT id, name FROM room_types WHERE chain_name=%s AND location=%s", params)
         room_form.room_type.choices = c.fetchall()
         return render_template('location.html', room_form=room_form,
