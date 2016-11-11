@@ -237,6 +237,9 @@ def register():
 @app.route('/check-in', methods=['POST'])
 def check_in():
     form = CheckinForm()
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("SELECT id FROM rooms WHERE status='clean' OR status='dirty'")
     
     return redirect(url_for('admin'))
 
