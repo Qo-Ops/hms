@@ -1,13 +1,14 @@
+import os
 from functools import partial
 
 import psycopg2
-from psycopg2.extras import DictCursor
+from psycopg2.extras import DictCursor, NamedTupleCursor
 from flask import Flask, request, redirect, url_for, render_template, flash, g
-from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
-from forms import LoginForm, RegistrationForm, NewChainForm, \
-    AdminForm, SearchForm, LocationForm, ReservationForm
+from forms import *
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -113,7 +114,26 @@ def add_reservation():
 
 @app.route('/new-room-type', methods=['POST'])
 def add_room_type():
-    pass
+    roomtype_form = RoomTypeForm()
+    if roomtype_form.validate_on_submit() and \
+       current_user.owns(roomtype_form.chain_name.data):
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("INSERT INTO room_types VALUES(DEFAULT, %(chain_name)s, %(location)s, %(name)s, %(price)s, %(capacity)s)", roomtype_form.data)
+        conn.commit()
+    return redirect(url_for('owner_dashboard'))
+
+
+@app.route('/new-room', methods=['POST'])
+def add_room():
+    room_form = RoomForm()
+    if room_form.validate_on_submit():
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("INSERT INTO rooms VALUES(DEFAULT, %(room_type)s, %(roomNo)s, 'clean'",
+                  room_form.data)
+        conn.commit()
+    return redirect(url_for('owner_dashboard'))
 
 
 @login_required
@@ -127,7 +147,17 @@ def admin():
 
 @app.route('/location', methods=['GET'])
 def get_location():
-    pass
+    if current_user.owns(request.args.get('chain_name')):
+        roomtype_form = RoomTypeForm(request.args)
+        room_form = RoomForm()
+        upload_form = UploadForm(request.args)
+        conn = get_db()
+        c = conn.cursor(cursor_factory=NamedTupleCursor)
+        params = tuple(request.args.values())
+        c.execute("SELECT id, name FROM room_types WHERE chain_name=%s AND location=%s", params)
+        room_form.room_type.choices = c.fetchall()
+        return render_template('location.html', room_form=room_form,
+                               roomtype_form=roomtype_form, upload_form=upload_form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -146,6 +176,7 @@ def login():
             app.logger.error(str(e))
             raise e
         if user_data is None:
+            flash("Wrong login and password combination")
             return redirect(url_for('login'))
         if check_password_hash(user_data[1], data.password.data):
             login_user(User(user_data[0], user_data[2] == 2), remember=True)
@@ -203,6 +234,20 @@ def register():
     return "whaat"
 
 
+@app.route('/upload-location-pic', methods=['POST'])
+def set_location_pic():
+    form = UploadForm()
+    try:
+        if form.validate_on_submit() and current_user.owns(form.chain_name.data):
+            path = get_location_pic_path(form.chain_name.data, form.location.data)
+            form.image.data.save(path)
+            print(path)
+        return redirect(url_for('get_location', chain_name=form.chain_name.data,
+                        location=form.location.data))
+    except Exception as e:
+        app.logger.error(e)
+
+
 @app.route('/search', methods=['GET'])
 def search():
     search = SearchForm(request.args)
@@ -218,6 +263,11 @@ def search():
                                search=search)
     return render_template('search.html')
 
+
+
+def get_location_pic_path(chain_name, location):
+    filename = chain_name + location + ".jpg"
+    return os.path.join(app.config['UPLOAD_FOLDER'], 'location-pics', filename)
 
 @app.teardown_appcontext
 def close_db(error):

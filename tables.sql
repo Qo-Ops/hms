@@ -17,7 +17,7 @@ create table visitors(
 
 create table hotel_chains(
     chain_name varchar(100) PRIMARY KEY,
-    owner_id integer references users(id)
+    owner_id integer references users(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 create table locations(
@@ -38,13 +38,12 @@ create table room_types(
     name varchar(100),
     price integer CHECK(price > 0) NOT NULL,
     capacity integer CHECK(capacity > 0) NOT NULL,
-    FOREIGN KEY (location, chain_name) REFERENCES locations(location, chain_name)
+    FOREIGN KEY (location, chain_name) REFERENCES locations(location, chain_name) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 create table rooms(
     id serial PRIMARY KEY,
     room_type INTEGER REFERENCES room_types(id) ON DELETE CASCADE,
-    building integer,
     roomNo integer,
     status room_status
 );

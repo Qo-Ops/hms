@@ -1,9 +1,10 @@
 from wtforms import validators
 from flask_wtf import FlaskForm as Form
-from wtforms import StringField, PasswordField, \
-    IntegerField, HiddenField, SelectField
+from flask_wtf.file import FileField, FileAllowed, FileRequired
+from wtforms import StringField, PasswordField, HiddenField, \
+    IntegerField, SelectField
 from wtforms.validators import DataRequired
-from wtforms.fields.html5 import EmailField, DateField
+from wtforms.fields.html5 import DateField, EmailField
 
 
 class LoginForm(Form):
@@ -91,4 +92,13 @@ class RoomForm(Form):
     room_type = SelectField('id', validators=[DataRequired()],
                             render_kw={"class": "form-control"})
     roomNo = IntegerField('roomNo', validators=[DataRequired()],
-                          render_kw={"class": "form-control"})
+                          render_kw={"placeholder": "number", "class": "form-control"})
+
+
+class UploadForm(Form):
+    image = FileField('image', validators=[
+        FileRequired(),
+        FileAllowed(['jpg'], 'Images only!')
+    ])
+    chain_name = HiddenField('chain_name', validators=[DataRequired()])
+    location = HiddenField('location', validators=[DataRequired()])

@@ -1,0 +1,76 @@
+<!doctype html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <title>HMS - Locations</title>
+  <meta name="description" content="HMS locations">
+  <meta name="author" content="edge peach mac">
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='header.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+
+  <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+{% include 'header.html' %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-8">
+
+    </div>
+    <div class="col-md-4">
+      <div class="panel panel-success">
+        <div class="panel-heading">New type of accomodation</div>
+        <div class="panel-body">
+          <form action="{{ url_for('add_room_type') }}" method=post>
+            {{ roomtype_form.csrf_token }}
+              {{ roomtype_form.chain_name }}
+              {{ roomtype_form.location }}
+            <div class="form-group">
+              {{ roomtype_form.name }}
+            </div>
+            <div class="form-group">
+              {{ roomtype_form.price }}
+            </div>
+            <div class="form-group">
+              {{ roomtype_form.capacity }}
+            </div>
+            <button type="submit" id="add-room-type" class="btn btn-success">Add</button>
+          </form>
+        </div>
+      </div>
+      <div class="panel panel-success">
+        <div class="panel-heading">Add a new room</div>
+        <div class="panel-body">
+          <form action="{{ url_for('add_room') }}" method=post>
+            {{ room_form.csrf_token }}
+            <div class="form-group">
+              <label>Type of accomodation</label>
+              {{ room_form.room_type }}
+            </div>
+            <div class="form-group">
+                {{ room_form.roomNo }}
+            </div>
+              <button type="submit" id="add-room" class="btn btn-success">Add</button>
+          </form>
+        </div>
+      </div>
+      <div class="panel panel-success">
+        <div class="panel-heading">Upload a picture of your hotel</div>
+       <div class="panel-body">
+         <form method="POST" action="{{ url_for('set_location_pic') }}" enctype="multipart/form-data">
+            {{ upload_form.hidden_tag() }}
+            {{ upload_form.image }}
+            <button type="submit" id="add-room-type" class="btn btn-success">Upload</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
