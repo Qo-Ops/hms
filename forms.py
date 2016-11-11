@@ -1,3 +1,4 @@
+from psycopg2.extras import NamedTupleCursor
 from wtforms import validators
 from flask_wtf import FlaskForm as Form
 from flask_wtf.file import FileField, FileAllowed, FileRequired

@@ -20,11 +20,22 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-8">
-      <div class="list-group">
         {% for location in locations %}
-            <a class="list-group-item" href="{{ url_for('get_location') }}?chain_name={{ location.chain_name|urlencode }}&location={{ location.location|urlencode }}">{{ location.location }}</a>
+            <div class="thumbnail">
+              <a href="{{ url_for('get_location') }}?chain_name={{ location.chain_name|urlencode }}&location={{ location.location|urlencode }}">
+                <div class="container">
+                <div class="row">
+                  <div class="col-sm-2">
+                    <img src="{{ location.photo_path }}" class="img-responsive img-thumbnail"/>
+                  </div>
+                  <div class="col-sm-10">
+                    <h2>{{ location.location }}</h2>
+                  </div>
+                </div>
+                </div>
+              </a>
+            </div>
         {% endfor %}
-      </div>
     </div>
     <div class="col-md-4">
       <div class="panel panel-success">

@@ -24,6 +24,7 @@ create table locations(
     chain_name varchar(100) references hotel_chains(chain_name) ON DELETE CASCADE ON UPDATE CASCADE,
     city varchar(60),
     location varchar(100),
+    photo_path varchar(200),
     admin_id integer references users(id),
     PRIMARY KEY(chain_name, location)
 );

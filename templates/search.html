@@ -37,27 +37,29 @@
             <div class="form-group">
                 {{ search.city }}
             </div>
-            <button type="submit" id="add-admin" class="btn btn-primary btn-block">Search</button>
+            <button type="submit" id="search" class="btn btn-primary btn-block">Search</button>
           </form>
         </div>
       </div>
     </div>
+    {% for location in results %}
     <div class="thumbnail">
-      <a href=# target="_blank">
+      <a href="{{ url_for('get_location') }}?chain_name={{ location.chain_name|urlencode }}&location={{ location.location|urlencode }}" target=_blank>
+        <div class="container">
         <div class="row">
-        
           <div class="col-sm-2">
-            <img src="{{ url_for('static', filename='242x200.svg') }}" class="img-responsive img-thumbnail"/>
+            <img src="{{ location.photo_path }}" class="img-responsive img-rounded"/>
           </div>
-          <div class="col-sm-8">
-            <h3>Hotel name</h3>
-            <p>room type</p>
-            <p>Price: 100$</p>
+          <div class="col-sm-10">
+            <h2>{{ location.chain_name }}</h2>
+            <p>{{ location.location }}</p>
+            <p>{{ location.price }}</p>
           </div>
+        </div>
         </div>
       </a>
     </div>
-
+    {% endfor %}
   </div>
   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
   <script type="text/javascript" src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>

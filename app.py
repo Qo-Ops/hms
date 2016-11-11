@@ -9,6 +9,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
 from forms import *
+import queries
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -90,8 +91,9 @@ def add_location():
     if form.validate_on_submit():
         conn = get_db()
         c = conn.cursor()
-        params = (form.chain_name.data, form.city.data, form.location.data)
-        c.execute("INSERT INTO locations VALUES(%s, %s, %s, NULL);", params)
+        default_path = url_for('static', filename='noimage.jpg')
+        params = (form.chain_name.data, form.city.data, form.location.data, default_path)
+        c.execute("INSERT INTO locations VALUES(%s, %s, %s, %s, NULL);", params)
         conn.commit()
     return redirect(url_for('owner_dashboard'))
 
@@ -127,12 +129,11 @@ def add_room_type():
 @app.route('/new-room', methods=['POST'])
 def add_room():
     room_form = RoomForm()
-    if room_form.validate_on_submit():
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("INSERT INTO rooms VALUES(DEFAULT, %(room_type)s, %(roomNo)s, 'clean'",
-                  room_form.data)
-        conn.commit()
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("INSERT INTO rooms VALUES(DEFAULT, %(room_type)s, %(roomNo)s, 'clean')",
+              room_form.data)
+    conn.commit()
     return redirect(url_for('owner_dashboard'))
 
 
@@ -204,9 +205,16 @@ def locations_by_chain():
         location_form = LocationForm()
         conn = get_db()
         c = conn.cursor()
-        c.execute("SELECT chain_name, location FROM locations WHERE chain_name=%s",
+        c.execute("SELECT chain_name, location, photo_path FROM locations WHERE chain_name=%s",
                    (chain,))
         locs = c.fetchall()
+        # info = {}
+        # c.execute("")
+        # info['income'] = c.fetchone()
+        # c.execute("")
+        # info['total_rooms'] = c.fetchone()
+        # c.execute("")
+        # info['busy_rooms'] = c.fetchone()
         location_form.chain_name.data = chain
         return render_template('chain.html', locations=locs,
                                new_admin=AdminForm(), new_location=location_form)
@@ -216,6 +224,7 @@ def locations_by_chain():
 @app.route('/owner-dashboard', methods=['GET'])
 def owner_dashboard():
     chains = current_user.get_owned_chains()
+
     return render_template('owner_dashboard.html', chains=chains,
                            new_chain=NewChainForm(), new_admin=AdminForm())
 
@@ -244,15 +253,19 @@ def check_in():
 @app.route('/upload-location-pic', methods=['POST'])
 def set_location_pic():
     form = UploadForm()
-    try:
-        if form.validate_on_submit() and current_user.owns(form.chain_name.data):
+    if form.validate_on_submit() and current_user.owns(form.chain_name.data):
+        try:
             path = get_location_pic_path(form.chain_name.data, form.location.data)
             form.image.data.save(path)
-            print(path)
-        return redirect(url_for('get_location', chain_name=form.chain_name.data,
-                        location=form.location.data))
-    except Exception as e:
-        app.logger.error(e)
+            conn = get_db()
+            c = conn.cursor()
+            params = (path, form.chain_name.data, form.location.data)
+            c.execute("UPDATE locations SET photo_path=%s WHERE chain_name=%s AND location=%s", params)
+            conn.commit()
+        except:
+            conn.rollback()
+    return redirect(url_for('get_location', chain_name=form.chain_name.data,
+                    location=form.location.data))
 
 
 @app.route('/search', methods=['GET'])
@@ -261,11 +274,13 @@ def search():
     if search.validate():
         conn = get_db()
         c = conn.cursor()
-        params = (search.from_date.data, search.to_date.data, search.max_price.data, search.city.data)
-        # TODO: query to get hotels by dates, max_price and city
-        #c.execute("", params)
-        #results = c.fetchall()
-        results = []
+        params = {'check_in': search.from_date.data,
+                  'check_out': search.to_date.data,
+                  'max_price': search.max_price.data,
+                  'city': search.city.data
+                  }
+        c.execute(queries.search_query, params)
+        results = c.fetchall()
         return render_template('search.html', results=results,
                                search=search)
     return render_template('search.html')
