@@ -12,4 +12,13 @@ FROM room_types
 check_in_query = """
 UPDATE rooms 
 SET status = 'occupied' 
-WHERE id = %(room_id)s;"""
+WHERE id IN
+	(SELECT room_id
+	FROM reservations
+	WHERE visitor_id IN
+		(SELECT id 
+		FROM visitors
+		WHERE ssn = %(room_id)s
+		)
+	)
+;"""

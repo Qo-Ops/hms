@@ -245,7 +245,7 @@ def register():
 
 @app.route('/check-in', methods=['POST'])
 def check_in():
-    check_in_form = CheckinForm(request.args)
+    check_in_form = CheckinForm()
     if check_in_form.validate():
         conn = get_db()
         c = conn.cursor()
