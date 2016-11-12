@@ -15,10 +15,10 @@ SET status = 'occupied'
 WHERE id IN
 	(SELECT room_id
 	FROM reservations
-	WHERE visitor_id IN
+	WHERE check_in = now()::date AND visitor_id IN
 		(SELECT id 
 		FROM visitors
-		WHERE ssn = %(ssn)s
+		WHERE ssn = %(ssn)s AND country = %(country_code)s
 		)
 	)
 ;"""

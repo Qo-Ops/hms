@@ -92,13 +92,16 @@ class RoomTypeForm(Form):
 class RoomForm(Form):
     room_type = SelectField('id', validators=[DataRequired()],
                             render_kw={"class": "form-control"})
-    roomNo = IntegerField('roomNo', validators=[DataRequired()],
-                          render_kw={"placeholder": "number", "class": "form-control"})
+    country = StringField('country', validators=[DataRequired(), validators.length(max=3)],
+                          render_kw={"placeholder": "Country code", "class": "form-control"})
 
 
 class CheckinForm(Form):
     ssn = IntegerField('ssn', validators=[DataRequired()],
                              render_kw={"placeholder": "Social Security Number", "class": "form-control"})
+    country_code = IntegerField('country_code', validators=[DataRequired()],
+                             render_kw={"placeholder": "Country code", "class": "form-control"})
+
 
 class UploadForm(Form):
     image = FileField('image', validators=[
