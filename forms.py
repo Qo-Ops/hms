@@ -97,8 +97,8 @@ class RoomForm(Form):
 
 
 class CheckinForm(Form):
-    pass
-
+    room_id = IntegerField('room_id', validators=[DataRequired()],
+                             render_kw={"placeholder": "Room_id", "class": "form-control"})
 
 class UploadForm(Form):
     image = FileField('image', validators=[

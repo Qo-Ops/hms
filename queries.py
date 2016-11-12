@@ -4,7 +4,12 @@ FROM room_types
     JOIN rooms ON rooms.room_type = room_types.id
     NATURAL JOIN locations
     WHERE price < %(max_price)s AND city = %(city)s AND rooms.id NOT IN
-    (SELECT id 
-     FROM reservations
-     WHERE (check_in <= %(check_in)s AND check_out >= %(check_in)s) OR 
+    (SELECT id
+	FROM reservations
+	WHERE (check_in <= %(check_in)s AND check_out >= %(check_in)s) OR 
            (check_out >= %(check_out)s AND check_in <= %(check_out)s));"""
+
+check_in_query = """
+UPDATE rooms 
+SET status = 'occupied' 
+WHERE id = %(room_id)s;"""
