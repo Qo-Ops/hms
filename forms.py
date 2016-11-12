@@ -99,9 +99,9 @@ class RoomForm(Form):
 
 class CheckinForm(Form):
     ssn = StringField('ssn', validators=[DataRequired()],
-                      render_kw={"class": "form-control", "placeholder": "SSN"})
-    country = StringField('country', validators=[DataRequired()],
-                      render_kw={"class": "form-control", "placeholder": "Country code"})
+                             render_kw={"placeholder": "Social Security Number", "class": "form-control"})
+    country = StringField('country', validators=[DataRequired(), validators.length(max=3)],
+                          render_kw={"placeholder": "Country code", "class": "form-control"})
 
 
 class UploadForm(Form):
