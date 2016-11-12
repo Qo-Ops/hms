@@ -37,6 +37,7 @@ class AdminForm(Form):
                              render_kw={"placeholder": "password", "class": "form-control"})
     email = EmailField('email', validators=[DataRequired()],
                        render_kw={"placeholder": "email", "class": "form-control"})
+    chain_name = HiddenField('chain_name', validators=[DataRequired()])
     location = StringField('location', validators=[DataRequired()],
                            render_kw={"placeholder": "hotel",
                                       "class": "form-control"})
@@ -97,7 +98,10 @@ class RoomForm(Form):
 
 
 class CheckinForm(Form):
-    pass
+    ssn = StringField('ssn', validators=[DataRequired()],
+                      render_kw={"class": "form-control", "placeholder": "SSN"})
+    country = StringField('country', validators=[DataRequired()],
+                      render_kw={"class": "form-control", "placeholder": "Country code"})
 
 
 class UploadForm(Form):

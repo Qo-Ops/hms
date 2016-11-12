@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+
+  <title>HMS – Admin</title>
+  <meta name="description" content="HMS admin">
+  <meta name="author" content="edge peach mac">
+
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='dashboard.css') }}">
+  <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+</head>
+<body>
+{% include 'header.html' %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-9">
+      <h2>Welcome to {{ location.location }} hotel management console</h2>
+      <div class="list-group">
+        {% for item in current_reservations %}
+          <a class="list-group-item" href="#">{{ item.roomNo }}</a>
+        {% endfor %}
+      </div>
+    </div>  
+    <div class="col-md-3">  
+      <div class="panel panel-info">
+        <div class="panel-heading">Check-in</div>
+        <div class="panel-body">
+          <form action="{{ url_for('check_in') }}" method=post>
+            {{ check_in.hidden_tag() }}
+            <div class="form-group">
+              {{ check_in.ssn }}
+            </div>
+            <div class="form-group">
+              {{ check_in.country }}
+            </div>
+            <button type="submit" id="add-room-type" class="btn btn-info">Check In</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

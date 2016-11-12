@@ -1,4 +1,5 @@
 import os
+import datetime
 from functools import partial
 
 import psycopg2
@@ -50,7 +51,9 @@ def load_user(userid):
         raise e
     if user_data is None:
         return None
-    return User(*user_data)
+    is_owner = True if user_data['access_level'] == 2 else False
+    print(is_owner)
+    return User(user_data['id'], is_owner)
 
 
 @app.route('/', methods=['GET'])
@@ -78,8 +81,11 @@ def add_admin():
     if form.validate_on_submit():
         conn = get_db()
         c = conn.cursor()
-        params = (form.login.data, form.password.data, form.email.data)
-        c.execute("INSERT INTO users VALUES(DEFAULT, %s, %s, 1, %s);", params)
+        form.password.data = generate_password_hash(form.password.data)
+
+        c.execute("INSERT INTO users VALUES(DEFAULT, %(login)s, %(password)s, 1, %(email)s) RETURNING id;", form.data)
+        params = (id, form.chain_name.data, form.location.data)
+        c.execute("UPDATE locations SET admin_id=%s WHERE chain_name=%s AND location=%s", params)
         conn.commit()
     return redirect(url_for('owner_dashboard'))
 
@@ -96,22 +102,6 @@ def add_location():
         c.execute("INSERT INTO locations VALUES(%s, %s, %s, %s, NULL);", params)
         conn.commit()
     return redirect(url_for('owner_dashboard'))
-
-
-@app.route('/new-reservation', methods=['POST', 'GET'])
-def add_reservation():
-    if request.method == 'GET':
-        reservation = ReservationForm(request.args)
-        return render_template('booking_page.html', reservation=reservation)
-    reservation = ReservationForm()
-    if reservation.validate_on_submit():
-        try:
-            db = get_db()
-            c = db.cursor()
-            c.execute("")
-        except Exception as e:
-            app.logger.error(e)
-        return redirect('success.html')
 
 
 @app.route('/new-room-type', methods=['POST'])
@@ -142,8 +132,28 @@ def add_room():
 def admin():
     location = current_user.get_managed_location()
     if location is None:
-        return redirect(url_for('logout'))
-    return render_template('admin.html', location=location)
+        return redirect(url_for('login'))
+    check_in = CheckinForm()
+    current_reservations = get_current_reservations()
+    return render_template('admin.html', location=location, check_in=check_in,
+                           current_reservations=current_reservations)
+
+
+@app.route('/book', methods=['POST', 'GET'])
+def book():
+    if request.method == 'GET':
+        reservation = ReservationForm(request.args)
+        return render_template('booking_page.html', reservation=reservation)
+    reservation = ReservationForm()
+    if reservation.validate_on_submit():
+        try:
+            db = get_db()
+            c = db.cursor()
+            c.execute("")
+            db.commit()
+        except Exception as e:
+            app.logger.error(e)
+        return redirect('success.html')
 
 
 @app.route('/location', methods=['GET'])
@@ -179,11 +189,13 @@ def login():
         if user_data is None:
             flash("Wrong login and password combination")
             return redirect(url_for('login'))
-        if check_password_hash(user_data[1], data.password.data):
-            login_user(User(user_data[0], user_data[2] == 2), remember=True)
+        if check_password_hash(user_data['password'], data.password.data):
+            login_user(User(user_data['id'], user_data['access_level'] == 2), remember=True)
             if current_user.is_owner:
                 return redirect(url_for('owner_dashboard'))
             else:
+                print(current_user.is_owner)
+                print(current_user.id)
                 return redirect(url_for('admin'))
         flash("Wrong login and password combination")
     registration_form = RegistrationForm()
@@ -203,6 +215,8 @@ def locations_by_chain():
     chain = request.args.get('name', None)
     if current_user.owns(chain):
         location_form = LocationForm()
+        admin_form = AdminForm()
+        admin_form.chain_name.data = chain
         conn = get_db()
         c = conn.cursor()
         c.execute("SELECT chain_name, location, photo_path FROM locations WHERE chain_name=%s",
@@ -217,7 +231,7 @@ def locations_by_chain():
         # info['busy_rooms'] = c.fetchone()
         location_form.chain_name.data = chain
         return render_template('chain.html', locations=locs,
-                               new_admin=AdminForm(), new_location=location_form)
+                               new_admin=admin_form, new_location=location_form)
 
 
 @login_required
@@ -289,6 +303,11 @@ def search():
     return render_template('search.html')
 
 
+def get_current_reservations():
+    conn = get_db()
+    c = conn.cursor()
+    c.execute(queries.current_reservations_query)
+    return c.fetchall()
 
 def get_location_pic_path(chain_name, location):
     filename = chain_name + location + ".jpg"

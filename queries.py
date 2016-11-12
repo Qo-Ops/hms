@@ -8,3 +8,10 @@ FROM room_types
      FROM reservations
      WHERE (check_in <= %(check_in)s AND check_out >= %(check_in)s) OR 
            (check_out >= %(check_out)s AND check_in <= %(check_out)s));"""
+
+current_reservations_query = """
+SELECT roomNo, check_in, check_out, first_name, last_name, ssn, country_code
+FROM rooms
+    JOIN reservations ON rooms.id=reservations.room_id
+    JOIN visitors ON visitors.id=reservations.visitor_id
+    WHERE status='occupied';"""

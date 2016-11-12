@@ -42,7 +42,7 @@
         <div class="panel-heading">Add a new admin</div>
         <div class="panel-body">
           <form action="{{ url_for('add_admin') }}" method=post>
-            {{ new_admin.csrf_token }}
+            {{ new_admin.hidden_tag() }}
             <div class="form-group">
               {{ new_admin.login }}
           </div>

@@ -39,10 +39,10 @@ class User(UserMixin):
             db = get_db()
             c = db.cursor()
             # TODO: get location of administrator by his id
-            query = ('select id '
+            query = ('select city, location, chain_name, photo_path '
                      'from locations '
-                     'where id=%s;')
-            c.execute(query, self.id)
+                     'where admin_id=%s;')
+            c.execute(query, (self.id,))
             location = c.fetchone()
             db.commit()
             return location
