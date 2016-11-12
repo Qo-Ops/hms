@@ -249,7 +249,7 @@ def check_in():
     if check_in_form.validate():
         conn = get_db()
         c = conn.cursor()
-        params = {'room_id': check_in_form.room_id.data
+        params = {'ssn': check_in_form.room_id.data
                   }
         c.execute(queries.check_in_query, params)    
     return redirect(url_for('admin'))

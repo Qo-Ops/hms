@@ -18,7 +18,7 @@ WHERE id IN
 	WHERE visitor_id IN
 		(SELECT id 
 		FROM visitors
-		WHERE ssn = %(room_id)s
+		WHERE ssn = %(ssn)s
 		)
 	)
 ;"""
