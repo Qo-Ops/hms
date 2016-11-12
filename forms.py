@@ -45,9 +45,9 @@ class AdminForm(Form):
 
 class SearchForm(Form):
     from_date = DateField('from_date', validators=[DataRequired()], format='%d/%m/%Y',
-                          render_kw={"placeholder": "From", "class": "form-control"})
+                          render_kw={"class": "form-control"})
     to_date = DateField('to_date', validators=[DataRequired()], format='%d/%m/%Y',
-                        render_kw={"placeholder": "To", "class": "form-control"})
+                        render_kw={"class": "form-control"})
     max_price = IntegerField('price',
                              render_kw={"placeholder": "Maximum price", "class": "form-control"})
     city = StringField('city', validators=[DataRequired()],
@@ -72,11 +72,11 @@ class ReservationForm(Form):
                              render_kw={"placeholder": "Social Security Number", "class": "form-control"})
     email = EmailField('email', validators=[DataRequired()],
                        render_kw={"placeholder": "E-mail", "class": "form-control"})
-    country = StringField('country', validators=[DataRequired(), validators.length(max=3)],
+    country_code = StringField('country_code', validators=[DataRequired(), validators.length(max=3)],
                           render_kw={"placeholder": "Country code", "class": "form-control"})
-    room_id = HiddenField('room_id', validators=[DataRequired()])
-    check_in = DateField('check_in', validators=[DataRequired()])
-    check_out = DateField('check_out', validators=[DataRequired()])
+    roomtype_id = HiddenField('roomtype_id', validators=[DataRequired()])
+    check_in = HiddenField('check_in', validators=[DataRequired()])
+    check_out = HiddenField('check_out', validators=[DataRequired()])
 
 
 class RoomTypeForm(Form):

@@ -6,6 +6,12 @@
     email varchar(124) UNIQUE NOT NULL
 );
 
+create table emloyees(
+    id INTEGER PRIMARY KEY references users(id),
+    salary INTEGER,
+    position varchar(100)
+);
+
 create table visitors(
     id serial PRIMARY KEY,
     first_name varchar(100) NOT NULL,

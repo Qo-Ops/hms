@@ -1,5 +1,5 @@
 import os
-import datetime
+from datetime import datetime
 from functools import partial
 
 import psycopg2
@@ -142,18 +142,45 @@ def admin():
 @app.route('/book', methods=['POST', 'GET'])
 def book():
     if request.method == 'GET':
-        reservation = ReservationForm(request.args)
-        return render_template('booking_page.html', reservation=reservation)
+        conn = get_db()
+        c = conn.cursor()
+        roomtype_id = int(request.args.get('roomtype_id'))
+        print(roomtype_id)
+        c.execute(queries.get_reservation_query, (roomtype_id,))
+        booking = c.fetchone()
+        dates = {"check_in": request.args.get('check-in'),
+                 "check_out": request.args.get('check-out')}
+        reservation = ReservationForm()
+        reservation.roomtype_id.data = roomtype_id
+        reservation.check_in.data = dates['check_in']
+        reservation.check_out.data = dates['check_out']
+        dates['days'] = daydelta(dates['check_out'], dates['check-in'])
+        return render_template('booking_page.html', booking=booking,
+                               dates=dates, reservation=reservation)
     reservation = ReservationForm()
     if reservation.validate_on_submit():
         try:
             db = get_db()
             c = db.cursor()
-            c.execute("")
+
+            c.execute("UPDATE rooms SET status='occupied' FROM (SELECT id FROM rooms WHERE room_type=%s LIMIT 1) AS r RETURNING r.id;",
+                      (reservation.roomtype_id.data,))
+            params = reservation.data
+            params['room_id'] = c.fetchone()[0]
+            c.execute("INSERT INTO visitors VALUES(DEFAULT, %(first_name)s, %(last_name)s, "
+                      "%(ssn)s, %(country_code)s, %(email)s) RETURNING id;", reservation.data)
+            params['visitor_id'] = c.fetchone()[0]
+            c.execute("SELECT price FROM room_types WHERE id=%s", (int(reservation.roomtype_id.data),))
+            price = int(c.fetchone()[0])
+            params['total'] = daydelta(reservation.check_out.data, reservation.check_in.data) * price
+            c.execute("INSERT INTO reservations VALUES(DEFAULT, %(total)s, %(check_in)s, "
+                      "%(check_out)s, %(room_id)s, %(visitor_id)s)", params)
             db.commit()
         except Exception as e:
             app.logger.error(e)
+            raise(e)
         return redirect('success.html')
+    print(reservation.errors)
 
 
 @app.route('/location', methods=['GET'])
@@ -305,6 +332,10 @@ def search():
                                search=search)
     return render_template('search.html')
 
+def daydelta(stamp1, stamp2):
+    date_format = "%Y-%m-%d"
+    days = datetime.strptime(stamp1, date_format) - datetime.strptime(stamp2, date_format)
+    return days.days
 
 def get_current_reservations():
     conn = get_db()

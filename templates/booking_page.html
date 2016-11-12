@@ -5,13 +5,13 @@
     <title>Booking</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='booking_page.css')}}">
 </head>
 <body>
 
 <div class="container">
     <div class="page-header">
-        <h1>Final steps to get your reservatoin done</h1>
-        <p class="lead">Provide your personal information to complete the reservation.</p>
+        <h1>Booking information</h1>
     </div>
     <p></p>
     <div class="row">
@@ -23,23 +23,21 @@
             <div class="panel-body">
                 <div class="row">
                     <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
-                        <img src="http://q-ec.bstatic.com/images/hotel/square200/754/75487003.jpg"
+                        <img src="{{ booking.photo_path }}"
                              class="img-responsive img-rounded" alt="Responsive image">
                         <h4>Price per night:<br>
-                            $37,00
+                            ${{ booking.price }}
                         </h4>
                         <h2>Total:<br>
-                            $128,00
+                            ${{ dates.days * booking.price }}
                         </h2>
                     </div>
                     <div class="col-xs-12 col-sm-3 col-md-3 col-lg-3">
                         <address>
-                            <strong>Hotel Chain Name</strong><br>
-                            Location Name,<br>
-                            Building<br>
-                            Room Number<br>
-                            Type name<br>
-                            Number of guests
+                            <strong>Chain: {{ booking.chain_name }}</strong><br>
+                            Hotel: {{ booking.location }}<br>
+                            Accomodation: {{ booking.name }}<br>
+                            Number of guests: {{ booking.capacity }}
                         </address>
                         <span class="glyphicon glyphicon-star"></span>
                         <span class="glyphicon glyphicon-star"></span>
@@ -51,11 +49,11 @@
                         </address>
                         <span class="glyphicon glyphicon-log-in"></span>
                         <strong>Check-in date:</strong>
-                        <time datetime="2014-09-25T12:00"> 25 September 2014</time>
+                        <time datetime="2014-09-25T12:00"> {{ dates.check_in }}</time>
                         <br>
                         <span class="glyphicon glyphicon-log-out"></span>
                         <strong>Check-out date:</strong>
-                        <time datetime="2014-09-28T12:00"> 28 September 2014</time>
+                        <time datetime="2014-09-28T12:00">{{ dates.check_out }}</time>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                         <div id="map" style="width: 600px; height: 300px" alt="Responsive image"
@@ -72,277 +70,30 @@
             </div>
             <div class="panel-body">
                 <div class="row">
-                    <h5 class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><span class="glyphicon glyphicon-pencil"></span>
-                        <i>How can we call you</i>
-                    </h5>
-                </div>
-                <div class="row">
+                    <form action="{{ url_for('book') }}" method=POST>
+                    {{ reservation.hidden_tag() }}
                     <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
                         <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Name">
+                            {{ reservation.first_name }}
                         </div>
                     </div>
                     <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
                         <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Surname">
+                            {{ reservation.last_name }}
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
                         <div class="form-group">
-                            <input type="email" class="form-control" placeholder="E-mail">
+                            {{ reservation.email }}
                         </div>
                     </div>
                     <div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
                         <div class="form-group">
-                            <input type="tel" class="form-control" placeholder="SSN">
+                            {{ reservation.ssn }}
                         </div>
                     </div>
                     <div class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-                        <select class="form-control">
-                            <option>AIA</option>
-                            <option>ALA</option>
-                            <option>ATA</option>
-                            <option>ATG</option>
-                            <option>ARG</option>
-                            <option>ARM</option>
-                            <option>ABW</option>
-                            <option>AUS</option>
-                            <option>AUT</option>
-                            <option>AZE</option>
-                            <option>BHS</option>
-                            <option>BHR</option>
-                            <option>BGD</option>
-                            <option>BRB</option>
-                            <option>BLR</option>
-                            <option>BEL</option>
-                            <option>BLZ</option>
-                            <option>BEN</option>
-                            <option>BMU</option>
-                            <option>BTN</option>
-                            <option>BOL</option>
-                            <option>BES</option>
-                            <option>BIH</option>
-                            <option>BWA</option>
-                            <option>BVT</option>
-                            <option>BRA</option>
-                            <option>IOT</option>
-                            <option>BRN</option>
-                            <option>BGR</option>
-                            <option>BFA</option>
-                            <option>BDI</option>
-                            <option>KHM</option>
-                            <option>CMR</option>
-                            <option>CAN</option>
-                            <option>CPV</option>
-                            <option>CYM</option>
-                            <option>CAF</option>
-                            <option>TCD</option>
-                            <option>CHL</option>
-                            <option>CHN</option>
-                            <option>CXR</option>
-                            <option>CCK</option>
-                            <option>COL</option>
-                            <option>COM</option>
-                            <option>COG</option>
-                            <option>COD</option>
-                            <option>COK</option>
-                            <option>CRI</option>
-                            <option>HRV</option>
-                            <option>CUB</option>
-                            <option>CUW</option>
-                            <option>CYP</option>
-                            <option>CZE</option>
-                            <option>CIV</option>
-                            <option>DNK</option>
-                            <option>DJI</option>
-                            <option>DMA</option>
-                            <option>DOM</option>
-                            <option>ECU</option>
-                            <option>EGY</option>
-                            <option>SLV</option>
-                            <option>GNQ</option>
-                            <option>ERI</option>
-                            <option>EST</option>
-                            <option>ETH</option>
-                            <option>FLK</option>
-                            <option>FRO</option>
-                            <option>FJI</option>
-                            <option>FIN</option>
-                            <option>FRA</option>
-                            <option>GUF</option>
-                            <option>PYF</option>
-                            <option>ATF</option>
-                            <option>GAB</option>
-                            <option>GMB</option>
-                            <option>GEO</option>
-                            <option>DEU</option>
-                            <option>GHA</option>
-                            <option>GIB</option>
-                            <option>GRC</option>
-                            <option>GRL</option>
-                            <option>GRD</option>
-                            <option>GLP</option>
-                            <option>GUM</option>
-                            <option>GTM</option>
-                            <option>GGY</option>
-                            <option>GIN</option>
-                            <option>GNB</option>
-                            <option>GUY</option>
-                            <option>HTI</option>
-                            <option>HMD</option>
-                            <option>VAT</option>
-                            <option>HND</option>
-                            <option>HKG</option>
-                            <option>HUN</option>
-                            <option>ISL</option>
-                            <option>IND</option>
-                            <option>IDN</option>
-                            <option>IRN</option>
-                            <option>IRQ</option>
-                            <option>IRL</option>
-                            <option>IMN</option>
-                            <option>ISR</option>
-                            <option>ITA</option>
-                            <option>JAM</option>
-                            <option>JPN</option>
-                            <option>JEY</option>
-                            <option>JOR</option>
-                            <option>KAZ</option>
-                            <option>KEN</option>
-                            <option>KIR</option>
-                            <option>PRK</option>
-                            <option>KOR</option>
-                            <option>KWT</option>
-                            <option>KGZ</option>
-                            <option>LAO</option>
-                            <option>LVA</option>
-                            <option>LBN</option>
-                            <option>LSO</option>
-                            <option>LBR</option>
-                            <option>LBY</option>
-                            <option>LIE</option>
-                            <option>LTU</option>
-                            <option>LUX</option>
-                            <option>MAC</option>
-                            <option>MKD</option>
-                            <option>MDG</option>
-                            <option>MWI</option>
-                            <option>MYS</option>
-                            <option>MDV</option>
-                            <option>MLI</option>
-                            <option>MLT</option>
-                            <option>MHL</option>
-                            <option>MTQ</option>
-                            <option>MRT</option>
-                            <option>MUS</option>
-                            <option>MYT</option>
-                            <option>MEX</option>
-                            <option>FSM</option>
-                            <option>MDA</option>
-                            <option>MCO</option>
-                            <option>MNG</option>
-                            <option>MNE</option>
-                            <option>MSR</option>
-                            <option>MAR</option>
-                            <option>MOZ</option>
-                            <option>MMR</option>
-                            <option>NAM</option>
-                            <option>NRU</option>
-                            <option>NPL</option>
-                            <option>NLD</option>
-                            <option>NCL</option>
-                            <option>NZL</option>
-                            <option>NIC</option>
-                            <option>NER</option>
-                            <option>NGA</option>
-                            <option>NIU</option>
-                            <option>NFK</option>
-                            <option>MNP</option>
-                            <option>NOR</option>
-                            <option>OMN</option>
-                            <option>PAK</option>
-                            <option>PLW</option>
-                            <option>PSE</option>
-                            <option>PAN</option>
-                            <option>PNG</option>
-                            <option>PRY</option>
-                            <option>PER</option>
-                            <option>PHL</option>
-                            <option>PCN</option>
-                            <option>POL</option>
-                            <option>PRT</option>
-                            <option>PRI</option>
-                            <option>QAT</option>
-                            <option>ROU</option>
-                            <option>RUS</option>
-                            <option>RWA</option>
-                            <option>REU</option>
-                            <option>BLM</option>
-                            <option>SHN</option>
-                            <option>KNA</option>
-                            <option>LCA</option>
-                            <option>MAF</option>
-                            <option>SPM</option>
-                            <option>VCT</option>
-                            <option>WSM</option>
-                            <option>SMR</option>
-                            <option>STP</option>
-                            <option>SAU</option>
-                            <option>SEN</option>
-                            <option>SRB</option>
-                            <option>SYC</option>
-                            <option>SLE</option>
-                            <option>SGP</option>
-                            <option>SXM</option>
-                            <option>SVK</option>
-                            <option>SVN</option>
-                            <option>SLB</option>
-                            <option>SOM</option>
-                            <option>ZAF</option>
-                            <option>SGS</option>
-                            <option>SSD</option>
-                            <option>ESP</option>
-                            <option>LKA</option>
-                            <option>SDN</option>
-                            <option>SUR</option>
-                            <option>SJM</option>
-                            <option>SWZ</option>
-                            <option>SWE</option>
-                            <option>CHE</option>
-                            <option>SYR</option>
-                            <option>TWN</option>
-                            <option>TJK</option>
-                            <option>TZA</option>
-                            <option>THA</option>
-                            <option>TLS</option>
-                            <option>TGO</option>
-                            <option>TKL</option>
-                            <option>TON</option>
-                            <option>TTO</option>
-                            <option>TUN</option>
-                            <option>TUR</option>
-                            <option>TKM</option>
-                            <option>TCA</option>
-                            <option>TUV</option>
-                            <option>UGA</option>
-                            <option>UKR</option>
-                            <option>ARE</option>
-                            <option>GBR</option>
-                            <option>USA</option>
-                            <option>UMI</option>
-                            <option>URY</option>
-                            <option>UZB</option>
-                            <option>VUT</option>
-                            <option>VEN</option>
-                            <option>VNM</option>
-                            <option>VGB</option>
-                            <option>VIR</option>
-                            <option>WLF</option>
-                            <option>ESH</option>
-                            <option>YEM</option>
-                            <option>ZMB</option>
-                            <option>ZWE</option>
-                        </select>
+                        {{ reservation.country_code }}
                     </div>
                 </div>
                 <div class="row">
@@ -353,10 +104,11 @@
                     </h5>
                 </div>
                 <textarea class="form-control col-xs-6 col-sm-6 col-md-6 col-lg-6" rows="2"></textarea>
+                <span class="message">Due amount: $ {{ dates.days * booking.price }}</span>
             </div>
         </div>
-        <a href="https://twitter.com/ZakirShakirov" class="btn btn-success btn-lg active" role="button"><span
-                class="glyphicon glyphicon-ok"></span> Reserve</a>
+        <button role="submit" class="btn btn-primary btn-lg">Pay & Book</button>
+        </form>
     </div>
 </div>
 
