@@ -66,3 +66,15 @@ create table reservations(
     FOREIGN KEY (visitor_id) REFERENCES visitors(id),
 	CONSTRAINT positive_duration CHECK (check_out > check_in)
 );
+
+CREATE VIEW rooms_view AS
+SELECT rooms.*, chain_name, location, name as room_type_name, price, capacity 
+FROM rooms 
+    JOIN room_types ON room_types.id=room_type;
+
+CREATE VIEW full_reservations AS
+SELECT reservations.*, rooms.roomNo, status, room_type, chain_name, location, name as room_type_name, price, capacity, visitors.email, visitors.ssn, visitors.country_code, visitors.last_name, visitors.first_name
+FROM reservations
+    JOIN rooms ON room_id=rooms.id
+    JOIN room_types ON rooms.room_type=room_types.id
+    JOIN visitors ON visitor_id=visitors.id;
