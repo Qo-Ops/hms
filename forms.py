@@ -32,15 +32,21 @@ class NewChainForm(Form):
 
 class AdminForm(Form):
     login = StringField('login', validators=[DataRequired()],
-                        render_kw={"placeholder": "login", "class": "form-control"})
+                        render_kw={"placeholder": "Login", "class": "form-control"})
     password = PasswordField('password', validators=[DataRequired()],
-                             render_kw={"placeholder": "password", "class": "form-control"})
+                             render_kw={"placeholder": "Password", "class": "form-control"})
     email = EmailField('email', validators=[DataRequired()],
-                       render_kw={"placeholder": "email", "class": "form-control"})
+                       render_kw={"placeholder": "Email", "class": "form-control"})
     chain_name = HiddenField('chain_name', validators=[DataRequired()])
     location = StringField('location', validators=[DataRequired()],
-                           render_kw={"placeholder": "hotel",
+                           render_kw={"placeholder": "Hotel",
                                       "class": "form-control"})
+    first_name = StringField('first_name', validators=[DataRequired()],
+                             render_kw={"placeholder": "First name", "class": "form-control"})
+    last_name = StringField('last_name', validators=[DataRequired()],
+                            render_kw={"placeholder": "Last name", "class": "form-control"})
+    salary = IntegerField('salary', validators=[DataRequired()],
+                          render_kw={"placeholder": "Salary", "class": "form-control"})
 
 
 class SearchForm(Form):

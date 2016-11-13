@@ -1,4 +1,5 @@
 import os
+import base64
 from datetime import datetime
 from functools import partial
 
@@ -16,6 +17,7 @@ app = Flask(__name__)
 app.config.from_object('config')
 lm = LoginManager()
 lm.init_app(app)
+app.config['SECRET_KEY'] = base64.b64encode(os.urandom(26)).decode('utf-8')
 lm.login_view = 'login'
 lm.session_protection = 'strong'
 
@@ -84,8 +86,10 @@ def add_admin():
         form.password.data = generate_password_hash(form.password.data)
 
         c.execute("INSERT INTO users VALUES(DEFAULT, %(login)s, %(password)s, 1, %(email)s) RETURNING id;", form.data)
-        params = (id, form.chain_name.data, form.location.data)
-        c.execute("UPDATE locations SET admin_id=%s WHERE chain_name=%s AND location=%s", params)
+        params = form.data
+        params['id'] = c.fetchone()[0]
+        c.execute("INSERT INTO employees VALUES(%(id)s, %(first_name)s, %(last_name)s, %(salary)s, 'hotel administrator');", params)
+        c.execute("UPDATE locations SET admin_id=%(id)s WHERE chain_name=%(chain_name)s AND location=%(location)s", params)
         conn.commit()
     return redirect(url_for('owner_dashboard'))
 

@@ -6,8 +6,10 @@
     email varchar(124) UNIQUE NOT NULL
 );
 
-create table emloyees(
+create table employees(
     id INTEGER PRIMARY KEY references users(id),
+    first_name varchar(100),
+    last_name varchar(100),
     salary INTEGER,
     position varchar(100)
 );
