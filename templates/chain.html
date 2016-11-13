@@ -10,6 +10,8 @@
 
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='header.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/common-bg.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='chain.css') }}">
 
   <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
@@ -43,7 +45,13 @@
         <div class="panel-body">
           <form action="{{ url_for('add_admin') }}" method=post>
             {{ new_admin.hidden_tag() }}
-            <div class="form-group">
+          <div class="form-group">
+              {{ new_admin.first_name }}
+          </div>
+          <div class="form-group">
+              {{ new_admin.last_name }}
+          </div>
+          <div class="form-group">
               {{ new_admin.login }}
           </div>
           <div class="form-group">
@@ -53,8 +61,12 @@
               {{ new_admin.email }}
           </div>
           <div class="form-group">
+              {{ new_admin.salary }}
+          </div>
+          <div class="form-group">
               {{ new_admin.location }}
           </div>
+
             <button type="submit" id="add-admin" class="btn btn-success">Add</button>
           </form>
         </div>
