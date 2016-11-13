@@ -191,10 +191,16 @@ def get_location():
         upload_form = UploadForm(request.args)
         conn = get_db()
         c = conn.cursor(cursor_factory=NamedTupleCursor)
-        params = (request.args.get('chain_name'), request.args.get('location'))
-        c.execute("SELECT id, name FROM room_types WHERE chain_name=%s AND location=%s", params)
+        c.execute("SELECT id, name FROM room_types WHERE chain_name=%(chain_name)s AND location=%(location)s", request.args)
         room_form.room_type.choices = c.fetchall()
-        return render_template('location.html', room_form=room_form,
+        info = {}
+        c.execute(queries.total_income, request.args)
+        info['income'] = c.fetchone()[0]
+        c.execute(queries.count_rooms_query, request.args)
+        info['total_rooms'] = c.fetchone()[0]
+        c.execute(queries.count_occupied_rooms, request.args)
+        info['occupied_rooms'] = c.fetchone()[0]
+        return render_template('location.html', room_form=room_form, info=info,
                                roomtype_form=roomtype_form, upload_form=upload_form)
 
 
@@ -249,13 +255,6 @@ def locations_by_chain():
         c.execute("SELECT chain_name, location, photo_path FROM locations WHERE chain_name=%s",
                    (chain,))
         locs = c.fetchall()
-        # info = {}
-        # c.execute("")
-        # info['income'] = c.fetchone()
-        # c.execute("")
-        # info['total_rooms'] = c.fetchone()
-        # c.execute("")
-        # info['busy_rooms'] = c.fetchone()
         location_form.chain_name.data = chain
         return render_template('chain.html', locations=locs,
                                new_admin=admin_form, new_location=location_form)

@@ -37,3 +37,13 @@ WHERE room_types.id IN
                         (SELECT id
                          FROM rooms 
                          WHERE room_type=%s);"""
+
+count_rooms_query = """
+SELECT COUNT(*) FROM rooms_view WHERE chain_name=%(chain_name)s AND location=%(location)s;
+"""
+count_occupied_rooms = """
+SELECT COUNT(*) FROM rooms_view WHERE status='occupied' AND chain_name=%(chain_name)s AND location=%(location)s;
+"""
+total_income = """
+SELECT SUM((check_out - check_in)*price) FROM full_reservations WHERE chain_name=%(chain_name)s AND location=%(location)s;
+"""
