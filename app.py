@@ -5,7 +5,7 @@ from functools import partial
 
 import psycopg2
 from psycopg2.extras import DictCursor, NamedTupleCursor
-from flask import Flask, request, redirect, url_for, render_template, flash, g
+from flask import Flask, request, redirect, url_for, render_template, flash, g, abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -158,7 +158,7 @@ def book():
         reservation.roomtype_id.data = roomtype_id
         reservation.check_in.data = dates['check_in']
         reservation.check_out.data = dates['check_out']
-        dates['days'] = daydelta(dates['check_out'], dates['check-in'])
+        dates['days'] = daydelta(dates['check_out'], dates['check_in'])
         return render_template('booking_page.html', booking=booking,
                                dates=dates, reservation=reservation)
     reservation = ReservationForm()
@@ -207,6 +207,18 @@ def get_location():
         return render_template('location.html', room_form=room_form, info=info,
                                roomtype_form=roomtype_form, upload_form=upload_form)
 
+app.route('/delete-location', methods=['POST'])
+def delete_location():
+    form = DeleteLocationForm()
+    if form.validate_on_submit() and current_user.owns(form.chain_name.data):
+        try:
+            conn = get_db()
+            c = conn.cursor()
+            c.execute('DELETE FROM locations WHERE location=%(location)s AND chain_name=%(chain_name)s', form.data)
+        except:
+            redirect('owner-dashboard')
+    else:
+        abort(403)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -257,7 +269,7 @@ def locations_by_chain():
         conn = get_db()
         c = conn.cursor()
         c.execute("SELECT chain_name, location, photo_path FROM locations WHERE chain_name=%s",
-                   (chain,))
+                  (chain,))
         locs = c.fetchall()
         location_form.chain_name.data = chain
         return render_template('chain.html', locations=locs,

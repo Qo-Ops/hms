@@ -68,6 +68,11 @@ class LocationForm(Form):
     chain_name = HiddenField('chain_name', validators=[DataRequired()],
                              render_kw={"placeholder": "city"})
 
+class DeleteLocationForm(Form):
+    location = StringField('location', validators=[DataRequired()],
+                           render_kw={"placeholder": "name of new hotel", "class": "form-control"})
+    chain_name = HiddenField('chain_name', validators=[DataRequired()])
+
 
 class ReservationForm(Form):
     first_name = StringField('first_name', validators=[DataRequired()],
