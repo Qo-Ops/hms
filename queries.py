@@ -1,7 +1,6 @@
 search_query = """
 SELECT room_types.price, room_types.name, room_types.capacity, room_types.location, room_types.id, locations.photo_path, locations.chain_name
-FROM room_types
-    JOIN rooms ON rooms.room_type = room_types.id
+FROM rooms_view
     NATURAL JOIN locations
     WHERE price < %(max_price)s AND city = %(city)s AND rooms.id NOT IN
     (SELECT id 
@@ -9,13 +8,10 @@ FROM room_types
      WHERE (check_in <= %(check_in)s AND check_out >= %(check_in)s) OR 
            (check_out >= %(check_out)s AND check_in <= %(check_out)s));"""
 
-# Заменить на вью
 current_reservations_query = """
 SELECT roomNo, check_in, check_out, first_name, last_name, ssn, country_code
-FROM rooms
-    JOIN reservations ON rooms.id=reservations.room_id
-    JOIN visitors ON visitors.id=reservations.visitor_id
-    WHERE status='occupied';"""
+FROM full_reservations
+WHERE status='occupied';"""
 
 check_in_query = """
 UPDATE rooms 

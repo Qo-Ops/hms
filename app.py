@@ -123,12 +123,14 @@ def add_room_type():
 @app.route('/new-room', methods=['POST'])
 def add_room():
     room_form = RoomForm()
-    conn = get_db()
-    c = conn.cursor()
-    c.execute("INSERT INTO rooms VALUES(DEFAULT, %(room_type)s, %(roomNo)s, 'clean')",
-              room_form.data)
-    conn.commit()
-    return redirect(url_for('owner_dashboard'))
+
+    if room_form.validate_on_submit():
+        conn = get_db()
+        c = conn.cursor()
+        c.execute("INSERT INTO rooms VALUES(DEFAULT, %(room_type)s, %(roomNo)s, 'clean')",
+                  room_form.data)
+        conn.commit()
+        return redirect(url_for('owner_dashboard'))
 
 
 @login_required
@@ -136,7 +138,7 @@ def add_room():
 def admin():
     location = current_user.get_managed_location()
     if location is None:
-        return redirect(url_for('login'))
+        return abort(403)
     check_in = CheckinForm()
     current_reservations = get_current_reservations()
     return render_template('admin.html', location=location, check_in=check_in,
@@ -184,7 +186,6 @@ def book():
             app.logger.error(e)
             raise(e)
         return redirect('success.html')
-    print(reservation.errors)
 
 
 @app.route('/location', methods=['GET'])
@@ -207,7 +208,7 @@ def get_location():
         return render_template('location.html', room_form=room_form, info=info,
                                roomtype_form=roomtype_form, upload_form=upload_form)
 
-app.route('/delete-location', methods=['POST'])
+@app.route('/delete-location', methods=['POST'])
 def delete_location():
     form = DeleteLocationForm()
     if form.validate_on_submit() and current_user.owns(form.chain_name.data):
@@ -215,10 +216,13 @@ def delete_location():
             conn = get_db()
             c = conn.cursor()
             c.execute('DELETE FROM locations WHERE location=%(location)s AND chain_name=%(chain_name)s', form.data)
-        except:
-            redirect('owner-dashboard')
+        except Exception as e:
+            app.logger.error(e)
+            raise(e)
+        return redirect('owner-dashboard')
     else:
         abort(403)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
