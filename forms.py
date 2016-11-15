@@ -54,10 +54,12 @@ class SearchForm(Form):
                           render_kw={"class": "form-control"})
     to_date = DateField('to_date', validators=[DataRequired()], format='%d/%m/%Y',
                         render_kw={"class": "form-control"})
-    max_price = IntegerField('price',
+    max_price = IntegerField('price', validators=[DataRequired()],
                              render_kw={"placeholder": "Maximum price", "class": "form-control"})
     city = StringField('city', validators=[DataRequired()],
                        render_kw={"placeholder": "City", "class": "form-control"})
+    capacity = IntegerField('capacity', validators=[DataRequired()],
+                            render_kw={"placeholder": "Number of guests", "class": "form-control"})
 
 
 class LocationForm(Form):

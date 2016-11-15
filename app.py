@@ -123,25 +123,28 @@ def add_room_type():
 @app.route('/new-room', methods=['POST'])
 def add_room():
     room_form = RoomForm()
-
-    if room_form.validate_on_submit():
-        conn = get_db()
-        c = conn.cursor()
-        c.execute("INSERT INTO rooms VALUES(DEFAULT, %(room_type)s, %(roomNo)s, 'clean')",
-                  room_form.data)
-        conn.commit()
-        return redirect(url_for('owner_dashboard'))
+    conn = get_db()
+    c = conn.cursor()
+    c.execute("INSERT INTO rooms VALUES(DEFAULT, %(room_type)s, %(roomNo)s, 'clean')",
+              room_form.data)
+    conn.commit()
+    return redirect(url_for('owner_dashboard'))
 
 
 @login_required
 @app.route('/admin', methods=['GET'])
 def admin():
+    if not current_user.is_authenticated:
+        return abort(403)
     location = current_user.get_managed_location()
     if location is None:
         return abort(403)
+    loc = {'location': location['location'],
+           'chain_name': location['chain_name']}
     check_in = CheckinForm()
+
     current_reservations = get_current_reservations()
-    return render_template('admin.html', location=location, check_in=check_in,
+    return render_template('admin.html', location=location, check_in=check_in, check_out=CheckinForm(),
                            current_reservations=current_reservations)
 
 
@@ -169,7 +172,7 @@ def book():
             db = get_db()
             c = db.cursor()
 
-            c.execute("UPDATE rooms SET status='occupied' FROM (SELECT id FROM rooms WHERE room_type=%s LIMIT 1) AS r RETURNING r.id;",
+            c.execute("UPDATE rooms SET status='occupied' WHERE id=(SELECT id FROM rooms WHERE room_type=%s AND status='clean' LIMIT 1) RETURNING rooms.id;",
                       (reservation.roomtype_id.data,))
             params = reservation.data
             params['room_id'] = c.fetchone()[0]
@@ -266,23 +269,29 @@ def logout():
 @app.route('/chain', methods=['GET'])
 def locations_by_chain():
     chain = request.args.get('name', None)
+    if not current_user.is_authenticated:
+        return abort(403)
     if current_user.owns(chain):
         location_form = LocationForm()
         admin_form = AdminForm()
         admin_form.chain_name.data = chain
         conn = get_db()
         c = conn.cursor()
-        c.execute("SELECT chain_name, location, photo_path FROM locations WHERE chain_name=%s",
+        c.execute("SELECT chain_name, location, city, photo_path FROM locations WHERE chain_name=%s",
                   (chain,))
         locs = c.fetchall()
         location_form.chain_name.data = chain
         return render_template('chain.html', locations=locs,
                                new_admin=admin_form, new_location=location_form)
+    else:
+        return abort(403)
 
 
 @login_required
 @app.route('/owner-dashboard', methods=['GET'])
 def owner_dashboard():
+    if not current_user.is_authenticated:
+        abort(403)
     chains = current_user.get_owned_chains()
 
     return render_template('owner_dashboard.html', chains=chains,
@@ -312,9 +321,20 @@ def check_in():
         params = {'ssn': check_in_form.room_id.data,
                   'country': check_in_form.country.data
                   }
-        c.execute(queries.check_in_query, params)    
+        c.execute(queries.check_in_query, params)
     return redirect(url_for('admin'))
 
+@app.route('/check-in', methods=['POST'])
+def check_out():
+    check_out_form = CheckinForm()
+    if check_out_form.validate():
+        conn = get_db()
+        c = conn.cursor()
+        params = {'ssn': check_out_form.room_id.data,
+                  'country': check_out_form.country.data
+                  }
+        c.execute(queries.check_in_query, params)
+    return redirect(url_for('admin'))
 
 @app.route('/upload-location-pic', methods=['POST'])
 def set_location_pic():
@@ -343,13 +363,16 @@ def search():
         params = {'check_in': search.from_date.data,
                   'check_out': search.to_date.data,
                   'max_price': search.max_price.data,
-                  'city': search.city.data
+                  'city': search.city.data,
+                  'capacity': search.capacity.data
                   }
         c.execute(queries.search_query, params)
         results = c.fetchall()
         return render_template('search.html', results=results,
                                search=search)
-    return render_template('search.html')
+    else:
+        app.logger.debug(search.errors)
+        return render_template('search.html', search=search)
 
 def daydelta(stamp1, stamp2):
     date_format = "%Y-%m-%d"

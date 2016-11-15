@@ -23,7 +23,7 @@
       <div class="col-md-12">
         <div class="well">
           <form action="{{ url_for('search') }}" method=GET class="form-inline">
-              {{ search.csrf_token }}
+              {{ search.hidden_tag() }}
             <label>&nbsp;From:</label>
             <div class="form-group">
               {{ search.from_date }}
@@ -40,6 +40,10 @@
             <div class="form-group">
                 {{ search.city }}
             </div>
+            <label>&nbsp;People:</label>
+            <div class="form-group">
+                {{ search.capacity }}
+            </div>
             <button type="submit" id="search" class="btn btn-primary">Search</button>
           </form>
         </div>
@@ -47,16 +51,17 @@
     </div>
     {% for location in results %}
     <div class="thumbnail">
-      <a href="{{ url_for('book') }}?roomtype_id={{ location.id }}&check-in={{ search.from_date.data }}&check-out={{ search.to_date.data }}" target=_blank>
+      <a href="{{ url_for('book') }}?roomtype_id={{ location.room_type }}&check-in={{ search.from_date.data }}&check-out={{ search.to_date.data }}" target=_blank>
         <div class="container">
         <div class="row">
           <div class="col-sm-2">
             <img src="{{ location.photo_path }}" class="img-responsive img-rounded"/>
           </div>
           <div class="col-sm-10">
-            <h2>{{ location.chain_name }}</h2>
-            <p>{{ location.location }}</p>
-            <p>{{ location.price }}</p>
+            <h2>{{ location.location }}</h2>
+            <p>{{ location.chain_name }}</p>
+            <p>Price per night: ${{ location.price }}</p>
+            <p>Accomodation for {{ location.capacity }} guests</p>
           </div>
         </div>
         </div>

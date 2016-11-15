@@ -1,12 +1,18 @@
 search_query = """
-SELECT room_types.price, room_types.name, room_types.capacity, room_types.location, room_types.id, locations.photo_path, locations.chain_name
+SELECT rooms_view.price, rooms_view.room_type_name, rooms_view.capacity, rooms_view.location, rooms_view.id, rooms_view.room_type, locations.photo_path, locations.chain_name
 FROM rooms_view
     NATURAL JOIN locations
-    WHERE price < %(max_price)s AND city = %(city)s AND rooms.id NOT IN
-    (SELECT id 
-     FROM reservations
-     WHERE (check_in <= %(check_in)s AND check_out >= %(check_in)s) OR 
-           (check_out >= %(check_out)s AND check_in <= %(check_out)s));"""
+    WHERE price < %(max_price)s AND 
+    city = %(city)s AND 
+    capacity >=%(capacity)s AND
+    id IN
+    (SELECT MIN(id)
+     FROM rooms WHERE id NOT IN
+                                (SELECT id 
+                                 FROM reservations
+                                 WHERE (check_in <= %(check_in)s AND check_out >= %(check_in)s) OR 
+                                       (check_out >= %(check_out)s AND check_in <= %(check_out)s))
+     GROUP BY room_type);"""
 
 current_reservations_query = """
 SELECT roomNo, check_in, check_out, first_name, last_name, ssn, country_code
@@ -30,10 +36,7 @@ get_reservation_query = """
 SELECT locations.chain_name, locations.city, locations.location, locations.photo_path, room_types.name, room_types.capacity, room_types.price
 FROM room_types
 NATURAL JOIN locations
-WHERE room_types.id IN
-                        (SELECT id
-                         FROM rooms 
-                         WHERE room_type=%s);"""
+WHERE room_types.id=%s;"""
 
 count_rooms_query = """
 SELECT COUNT(*) FROM rooms_view WHERE chain_name=%(chain_name)s AND location=%(location)s;

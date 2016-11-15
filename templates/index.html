@@ -46,12 +46,19 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <span class="glyphicon-usd glyphicon"></span>
-                        {{ search.max_price }}
+                        <div class="input-group">
+                            <div class="input-group-addon"><span class="glyphicon glyphicon-usd"></span></div>
+                            {{ search.max_price }}
+                        </div>
                     </div>
                     <div class="form-group">
-                        <span class="glyphicon glyphicon-globe"></span>
-                        {{ search.city }}
+                        <div class="input-group">
+                            <div class="input-group-addon"><span class="glyphicon glyphicon-globe"></span></div>
+                            {{ search.city }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        {{ search.capacity }}
                     </div>
                     <button type="submit" id="add-admin" class="btn btn-primary btn-block">Search</button>
                 </form>
