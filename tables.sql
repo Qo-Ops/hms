@@ -69,24 +69,16 @@ create table reservations(
 	CONSTRAINT positive_duration CHECK (check_out > check_in)
 );
 
-create table cleaners(
-    staff_id serial PRIMARY KEY references employees(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    chain_name varchar(100) NOT NULL,
-    location varchar(100) NOT NULL,
-    first_name varchar(100) NOT NULL,
-    last_name varchar(100) NOT NULL,
-    salary integer CHECK(salary > 0) NOT NULL,
-    FOREIGN KEY (chain_name, location) REFERENCES locations(chain_name, location)
-);
-
 CREATE DOMAIN day_of_week AS char(3)
     CHECK(VALUE IN ('MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'));
 
 create table cleaning(
     id serial PRIMARY KEY REFERENCES rooms(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    cleaner integer references cleaners(staff_id),
+    cleaner integer references employees(staff_id) ON DELETE CASCADE ON UPDATE CASCADE,
     weekday day_of_week NOT NULL
 );
+
+
 
 CREATE VIEW rooms_view AS
 SELECT rooms.*, chain_name, location, name as room_type_name, price, capacity 
@@ -99,3 +91,33 @@ FROM reservations
     JOIN rooms ON room_id=rooms.id
     JOIN room_types ON rooms.room_type=room_types.id
     JOIN visitors ON visitor_id=visitors.id;
+
+CREATE FUNCTION trigger_occupied_dirty ()
+        RETURNS trigger AS $$
+        BEGIN
+           if ( NEW.status = 'clean' AND OLD.status = 'occupied' )
+           then
+           NEW.status = 'dirty';
+           end if;
+        return NEW;
+        END;
+        $$
+    LANGUAGE  plpgsql;
+
+CREATE TRIGGER cleaners
+    BEFORE UPDATE OR INSERT ON cleaning
+    EXECUTE PROCEDURE ensure_cleaner ();
+
+CREATE FUNCTION ensure_cleaner ()
+        RETURNS trigger AS $$
+        BEGIN
+           if (SELECT position FROM employees WHERE id=NEW.cleaner <> 'cleaner')
+           then RAISE EXCEPTION "the employee is not a cleaner" 
+        return NEW;
+        END;
+        $$
+    LANGUAGE  plpgsql;
+
+CREATE TRIGGER check_out
+    BEFORE UPDATE ON rooms
+    EXECUTE PROCEDURE trigger_occupied_dirty ();
