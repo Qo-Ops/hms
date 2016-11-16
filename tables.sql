@@ -34,6 +34,7 @@ create table locations(
     location varchar(100) NOT NULL,
     photo_path varchar(200),
     admin_id integer references users(id) ON DELETE SET NULL ON UPDATE CASCADE,
+    address varchar(200),
     PRIMARY KEY(chain_name, location)
 );
 

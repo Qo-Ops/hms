@@ -125,47 +125,64 @@
 <script type="text/javascript">
 ymaps.ready(init);
 
-function init () {
-var myMap = new ymaps.Map("map", {
-        center: [55.79185507, 49.10962100],
-        zoom: 17
-    }, {
-        searchControlProvider: 'yandex#search'
-    }),
-    // Метка, содержимое балуна которой загружается с помощью AJAX.
-    placemark = new ymaps.Placemark([55.79185507, 49.10962100], {
-        iconContent: "Click to get the address",
-        hintContent: "You can drag this placemark anywhere you want and get the address"
-    }, {
-        // Запретим замену обычного балуна на балун-панель.
-        balloonPanelMaxMapArea: 0,
-        draggable: "true",
-        preset: "islands#blueStretchyIcon",
-        // Заставляем балун открываться даже если в нем нет содержимого.
-        openEmptyBalloon: true
+function init() {
+    var myMap = new ymaps.Map('map', {
+        center: [55.753994, 37.622093],
+        zoom: 9
     });
 
-// Обрабатываем событие открытия балуна на геообъекте:
-// начинаем загрузку данных, затем обновляем его содержимое.
-placemark.events.add('balloonopen', function (e) {
-    placemark.properties.set('balloonContent', "Loading...");
+    // Поиск координат центра Нижнего Новгорода.
+    ymaps.geocode('{{ booking.address }}', {
+        /**
+         * Опции запроса
+         * @see https://api.yandex.ru/maps/doc/jsapi/2.1/ref/reference/geocode.xml
+         */
+        // Сортировка результатов от центра окна карты.
+        // boundedBy: myMap.getBounds(),
+        // strictBounds: true,
+        // Вместе с опцией boundedBy будет искать строго внутри области, указанной в boundedBy.
+        // Если нужен только один результат, экономим трафик пользователей.
+        results: 1
+    }).then(function (res) {
+            // Выбираем первый результат геокодирования.
+            var firstGeoObject = res.geoObjects.get(0),
+                // Координаты геообъекта.
+                coords = firstGeoObject.geometry.getCoordinates(),
+                // Область видимости геообъекта.
+                bounds = firstGeoObject.properties.get('boundedBy');
 
-    // Имитация задержки при загрузке данных (для демонстрации примера).
-    setTimeout(function () {
-        ymaps.geocode(placemark.geometry.getCoordinates(), {
-            results: 1
-        }).then(function (res) {
-            var newContent = res.geoObjects.get(0) ?
-                    res.geoObjects.get(0).properties.get('name') :
-                    'Could not find address. Try again';
+            // Добавляем первый найденный геообъект на карту.
+            myMap.geoObjects.add(firstGeoObject);
+            // Масштабируем карту на область видимости геообъекта.
+            myMap.setBounds(bounds, {
+                // Проверяем наличие тайлов на данном масштабе.
+                checkZoomRange: true
+            });
 
-            // Задаем новое содержимое балуна в соответствующее свойство метки.
-            placemark.properties.set('balloonContent', newContent);
+            /**
+             * Все данные в виде javascript-объекта.
+             */
+            console.log('Все данные геообъекта: ', firstGeoObject.properties.getAll());
+            /**
+             * Метаданные запроса и ответа геокодера.
+             * @see https://api.yandex.ru/maps/doc/geocoder/desc/reference/GeocoderResponseMetaData.xml
+             */
+            console.log('Метаданные ответа геокодера: ', res.metaData);
+            /**
+             * Метаданные геокодера, возвращаемые для найденного объекта.
+             * @see https://api.yandex.ru/maps/doc/geocoder/desc/reference/GeocoderMetaData.xml
+             */
+            console.log('Метаданные геокодера: ', firstGeoObject.properties.get('metaDataProperty.GeocoderMetaData'));
+            /**
+             * Точность ответа (precision) возвращается только для домов.
+             * @see https://api.yandex.ru/maps/doc/geocoder/desc/reference/precision.xml
+             */
+            console.log('precision', firstGeoObject.properties.get('metaDataProperty.GeocoderMetaData.precision'));
+            console.log('Тип геообъекта: %s', firstGeoObject.properties.get('metaDataProperty.GeocoderMetaData.kind'));
+            console.log('Название объекта: %s', firstGeoObject.properties.get('name'));
+            console.log('Описание объекта: %s', firstGeoObject.properties.get('description'));
+            console.log('Полное описание объекта: %s', firstGeoObject.properties.get('text'));
         });
-    }, 1500);
-});
-
-myMap.geoObjects.add(placemark);
 }
 
 </script>

@@ -33,7 +33,7 @@ WHERE id IN
 	);"""
 
 get_reservation_query = """
-SELECT locations.chain_name, locations.city, locations.location, locations.photo_path, room_types.name, room_types.capacity, room_types.price
+SELECT locations.*, room_types.name, room_types.capacity, room_types.price
 FROM room_types
 NATURAL JOIN locations
 WHERE room_types.id=%s;"""
