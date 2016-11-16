@@ -74,7 +74,7 @@ CREATE DOMAIN day_of_week AS char(3)
 
 create table cleaning(
     id serial PRIMARY KEY REFERENCES rooms(id) ON DELETE CASCADE ON UPDATE CASCADE,
-    cleaner integer references employees(staff_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    cleaner integer references employees(id) ON DELETE CASCADE ON UPDATE CASCADE,
     weekday day_of_week NOT NULL
 );
 
