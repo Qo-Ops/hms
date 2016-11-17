@@ -173,13 +173,12 @@ def book():
             db = get_db()
             c = db.cursor()
 
-            c.execute("SELECT id FROM rooms WHERE room_type=%s AND status='clean' LIMIT 1;",
-                      (reservation.roomtype_id.data,))
+            c.execute(queries.get_room, reservation.data)
             params = reservation.data
-            params['room_id'] = c.fetchone()[0]
+            params['room_id'] = c.fetchone()['id']
             c.execute("INSERT INTO visitors VALUES(DEFAULT, %(first_name)s, %(last_name)s, "
                       "%(ssn)s, %(country_code)s, %(email)s) RETURNING id;", reservation.data)
-            params['visitor_id'] = c.fetchone()[0]
+            params['visitor_id'] = c.fetchone()['id']
             c.execute("SELECT * FROM room_types WHERE id=%s", (int(reservation.roomtype_id.data),))
             booked_room_type = c.fetchone()
             price = int(booked_room_type['price'])

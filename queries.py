@@ -15,6 +15,20 @@ FROM rooms_view
      GROUP BY room_type)
      ORDER BY price ASC;"""
 
+get_room = """
+SELECT rooms_view.price, rooms_view.room_type_name, rooms_view.capacity, rooms_view.location, rooms_view.id, rooms_view.room_type, locations.photo_path, locations.chain_name
+FROM rooms_view
+    NATURAL JOIN locations
+    WHERE room_type=%(roomtype_id)s AND
+    id IN
+    (SELECT MIN(id)
+     FROM rooms WHERE id NOT IN
+                                (SELECT id 
+                                 FROM reservations
+                                 WHERE (check_in <= %(check_in)s AND check_out >= %(check_in)s) OR 
+                                       (check_out >= %(check_out)s AND check_in <= %(check_out)s))
+     GROUP BY room_type)"""
+
 current_reservations_query = """
 SELECT roomNo, check_in, check_out, first_name, last_name, ssn, country_code
 FROM full_reservations
