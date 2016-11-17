@@ -24,7 +24,7 @@
       <h2>Welcome to {{ location.location }} hotel management console</h2>
       <div class="list-group">
         {% for item in current_reservations %}
-          <a class="list-group-item" href="#">{{ item.roomNo }}</a>
+          <a class="list-group-item" href="#">{{ item.id }}</a>
         {% endfor %}
       </div>
     </div>  

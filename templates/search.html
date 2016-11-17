@@ -54,12 +54,12 @@
       <a href="{{ url_for('book') }}?roomtype_id={{ location.room_type }}&check-in={{ search.from_date.data }}&check-out={{ search.to_date.data }}" target=_blank>
         <div class="container">
         <div class="row">
-          <div class="col-sm-2">
+          <div class="col-sm-2 vcenter">
             <img src="{{ location.photo_path }}" class="img-responsive img-rounded"/>
           </div>
           <div class="col-sm-10">
             <h2>{{ location.location }}</h2>
-            <p>{{ location.chain_name }}</p>
+            <p>{{ location.room_type_name }}</p>
             <p>Price per night: ${{ location.price }}</p>
             <p>Accomodation for {{ location.capacity }} guests</p>
           </div>

@@ -105,7 +105,7 @@ CREATE FUNCTION trigger_occupied_dirty ()
     LANGUAGE  plpgsql;
 
 CREATE TRIGGER cleaners
-    BEFORE UPDATE OR INSERT ON cleaning
+    AFTER UPDATE OR INSERT ON cleaning
     EXECUTE PROCEDURE ensure_cleaner ();
 
 CREATE FUNCTION ensure_cleaner ()

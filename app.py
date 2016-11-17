@@ -102,8 +102,8 @@ def add_location():
         conn = get_db()
         c = conn.cursor()
         default_path = url_for('static', filename='noimage.jpg')
-        params = (form.chain_name.data, form.city.data, form.location.data, default_path)
-        c.execute("INSERT INTO locations VALUES(%s, %s, %s, %s, NULL);", params)
+        params = (form.chain_name.data, form.city.data, form.location.data, default_path, form.address.data)
+        c.execute("INSERT INTO locations VALUES(%s, %s, %s, %s, NULL, %s);", params)
         conn.commit()
     return redirect(url_for('owner_dashboard'))
 
@@ -142,8 +142,7 @@ def admin():
     loc = {'location': location['location'],
            'chain_name': location['chain_name']}
     check_in = CheckinForm()
-
-    current_reservations = get_current_reservations()
+    current_reservations = get_current_reservations(loc)
     return render_template('admin.html', location=location, check_in=check_in, check_out=CheckinForm(),
                            current_reservations=current_reservations)
 
@@ -226,6 +225,25 @@ def delete_location():
     else:
         abort(403)
 
+@app.route('/cancel-booking', methods=['POST'])
+def cancel_booking():
+    pass
+
+
+@app.route('/delete-chain', methods=['POST'])
+def delete_chain():
+    form = DeleteChainForm()
+    if form.validate_on_submit() and current_user.owns(form.chain_name.data):
+        try:
+            conn = get_db()
+            c = conn.cursor()
+            c.execute('DELETE FROM hotel_chains WHERE chain_name=%(chain_name)s', form.data)
+        except Exception as e:
+            app.logger.error(e)
+            raise(e)
+        return redirect('owner-dashboard')
+    else:
+        abort(403)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -379,10 +397,10 @@ def daydelta(stamp1, stamp2):
     days = datetime.strptime(stamp1, date_format) - datetime.strptime(stamp2, date_format)
     return days.days
 
-def get_current_reservations():
+def get_current_reservations(location):
     conn = get_db()
     c = conn.cursor()
-    c.execute(queries.current_reservations_query)
+    c.execute(queries.get_current_reservations, location)
     return c.fetchall()
 
 def get_location_pic_path(chain_name, location):

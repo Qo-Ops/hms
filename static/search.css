@@ -6,3 +6,7 @@ a, a:hover, a:active, a:visited  {
 .top-block {
     margin-bottom: 10px;
 }
+
+.vcenter {
+    margin-top: 30px;
+}

@@ -12,7 +12,8 @@ FROM rooms_view
                                  FROM reservations
                                  WHERE (check_in <= %(check_in)s AND check_out >= %(check_in)s) OR 
                                        (check_out >= %(check_out)s AND check_in <= %(check_out)s))
-     GROUP BY room_type);"""
+     GROUP BY room_type)
+     ORDER BY price ASC;"""
 
 current_reservations_query = """
 SELECT roomNo, check_in, check_out, first_name, last_name, ssn, country_code
@@ -32,11 +33,13 @@ WHERE id IN
 		)
 	);"""
 
-get_reservation_query = """
-SELECT locations.*, room_types.name, room_types.capacity, room_types.price
-FROM room_types
-NATURAL JOIN locations
-WHERE room_types.id=%s;"""
+get_current_reservations = """
+SELECT *
+FROM full_reservations
+WHERE check_in <= now()::date AND 
+      check_out >= now()::date AND
+      location=%(location)s AND
+      chain_name=%(chain_name)s;"""
 
 count_rooms_query = """
 SELECT COUNT(*) FROM rooms_view WHERE chain_name=%(chain_name)s AND location=%(location)s;

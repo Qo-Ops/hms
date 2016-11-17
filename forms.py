@@ -64,23 +64,27 @@ class SearchForm(Form):
 
 class LocationForm(Form):
     location = StringField('location', validators=[DataRequired()],
-                           render_kw={"placeholder": "name of new hotel", "class": "form-control"})
+                           render_kw={"placeholder": "Name of new hotel", "class": "form-control"})
     city = StringField('city', validators=[DataRequired()],
-                       render_kw={"placeholder": "city", "class": "form-control"})
-    chain_name = HiddenField('chain_name', validators=[DataRequired()],
-                             render_kw={"placeholder": "city"})
+                       render_kw={"placeholder": "City", "class": "form-control"})
+    chain_name = HiddenField('chain_name', validators=[DataRequired()])
+    address = StringField('address', validators=[DataRequired()],
+                          render_kw={"placeholder": "Address", "class": "form-control"})
 
 class DeleteLocationForm(Form):
     location = StringField('location', validators=[DataRequired()],
                            render_kw={"placeholder": "name of new hotel", "class": "form-control"})
     chain_name = HiddenField('chain_name', validators=[DataRequired()])
 
+class DeleteChainForm(Form):
+    chain_name = HiddenField('chain_name', validators=[DataRequired()])
+
 
 class ReservationForm(Form):
     first_name = StringField('first_name', validators=[DataRequired()],
-                             render_kw={"placeholder": "first name", "class": "form-control"})
+                             render_kw={"placeholder": "First name", "class": "form-control"})
     last_name = StringField('last_name', validators=[DataRequired()],
-                             render_kw={"placeholder": "last name", "class": "form-control"})
+                             render_kw={"placeholder": "Last name", "class": "form-control"})
     ssn = StringField('ssn', validators=[DataRequired()],
                              render_kw={"placeholder": "Social Security Number", "class": "form-control"})
     email = EmailField('email', validators=[DataRequired()],
