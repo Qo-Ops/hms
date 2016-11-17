@@ -41,6 +41,12 @@ WHERE check_in <= now()::date AND
       location=%(location)s AND
       chain_name=%(chain_name)s;"""
 
+get_reservation_query = """
+SELECT locations.*, room_types.name, room_types.capacity, room_types.price
+FROM room_types
+NATURAL JOIN locations
+WHERE room_types.id=%s;"""
+
 count_rooms_query = """
 SELECT COUNT(*) FROM rooms_view WHERE chain_name=%(chain_name)s AND location=%(location)s;
 """

@@ -6,6 +6,7 @@ from functools import partial
 import psycopg2
 from psycopg2.extras import DictCursor, NamedTupleCursor
 from flask import Flask, request, redirect, url_for, render_template, flash, g, abort
+from flask_mail import Mail, Message
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
@@ -17,6 +18,7 @@ app = Flask(__name__)
 app.config.from_object('config')
 lm = LoginManager()
 lm.init_app(app)
+mail = Mail(app)
 app.config['SECRET_KEY'] = base64.b64encode(os.urandom(26)).decode('utf-8')
 lm.login_view = 'login'
 lm.session_protection = 'strong'
@@ -171,23 +173,43 @@ def book():
             db = get_db()
             c = db.cursor()
 
-            c.execute("UPDATE rooms SET status='occupied' WHERE id=(SELECT id FROM rooms WHERE room_type=%s AND status='clean' LIMIT 1) RETURNING rooms.id;",
+            c.execute("SELECT id FROM rooms WHERE room_type=%s AND status='clean' LIMIT 1;",
                       (reservation.roomtype_id.data,))
             params = reservation.data
             params['room_id'] = c.fetchone()[0]
             c.execute("INSERT INTO visitors VALUES(DEFAULT, %(first_name)s, %(last_name)s, "
                       "%(ssn)s, %(country_code)s, %(email)s) RETURNING id;", reservation.data)
             params['visitor_id'] = c.fetchone()[0]
-            c.execute("SELECT price FROM room_types WHERE id=%s", (int(reservation.roomtype_id.data),))
-            price = int(c.fetchone()[0])
+            c.execute("SELECT * FROM room_types WHERE id=%s", (int(reservation.roomtype_id.data),))
+            booked_room_type = c.fetchone()
+            price = int(booked_room_type['price'])
             params['total'] = daydelta(reservation.check_out.data, reservation.check_in.data) * price
             c.execute("INSERT INTO reservations VALUES(DEFAULT, %(total)s, %(check_in)s, "
-                      "%(check_out)s, %(room_id)s, %(visitor_id)s)", params)
+                      "%(check_out)s, %(room_id)s, %(visitor_id)s) RETURNING *;", params)
+            reserved = c.fetchone()
             db.commit()
+            args = {"id": reserved['id'],
+                    "location": booked_room_type['location'],
+                    "check_in": reserved['check_in'],
+                    "check_out": reserved['check_out']
+                    }
+            email = "Thank you for booking with hms.com!<br>Your booking data:<br>Reservation ID: {0[id]}<br>Hotel: {1[location]}<br>Check-in date: {0[check_in]}<br>Check-out date: {0[check_out]}\n"
+            email = email.format(reserved, booked_room_type)
         except Exception as e:
             app.logger.error(e)
             raise(e)
-        return redirect('success.html')
+        try:
+            msg = Message(email, recipients=[reservation.email.data])
+            mail.send(msg)
+        except Exception as e:
+            app.logger.error(e)
+        finally:
+            return redirect(url_for('success', **args))
+
+
+@app.route('/success', methods=['GET'])
+def success():
+    return render_template('success.html', data=request.args)
 
 
 @app.route('/location', methods=['GET'])

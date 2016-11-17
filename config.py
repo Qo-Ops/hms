@@ -1,6 +1,11 @@
-
-
 DB_HOST = "localhost"
 DB_NAME = "qoops"
 DB_USER = "qoops"
 UPLOAD_FOLDER = "static"
+MAIL_SERVER = "smtp.gmail.com"
+MAIL_PORT = 587
+MAIL_USE_TLS = True
+MAIL_USE_SSL = False
+MAIL_USERNAME = 'hmsinfomanager@gmail.com'
+MAIL_PASSWORD = 'qwerty123456789'
+MAIL_DEFAULT_SENDER = 'hmsinfomanager@gmail.com'
